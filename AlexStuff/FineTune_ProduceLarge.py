@@ -7,7 +7,7 @@ import datetime, os
 # SPLIT DATASET INTO TRAIN AND VALIDATION
 # --------------------------------
 
-DATA_DIR = "/home/agn/Downloads/Fruit And Vegetable Diseases Dataset"
+DATA_DIR = "/home/agn/Downloads/plantvillage dataset/color"
 OUT_DIR = "/home/agn/ProgramSpace/TensorFlow/Growcery"
 IMG_SIZE = (256, 256)
 BATCH_SIZE = 32
@@ -63,11 +63,30 @@ base_model = applications.EfficientNetV2S(
 base_model.trainable=False # freeze base for fine tune and transfer
 
 # data augmentation
-data_augmentation = Sequential([
+
+def random_jpeg_batch(x):
+    # Apply JPEG quality randomization per image in the batch
+    def _apply(img):
+        img_uint8 = tf.cast(img * 255.0, tf.uint8)
+        img_jpeg = tf.image.random_jpeg_quality(img_uint8, 70, 100)
+        return tf.cast(img_jpeg, tf.float32) / 255.0
+
+    return tf.map_fn(_apply, x)
+
+data_augmentation = tf.keras.Sequential([
     layers.RandomFlip("horizontal"),
-    layers.RandomRotation(0.1),
-    layers.RandomZoom(0.1),
-    layers.RandomContrast(0.1)
+    layers.RandomRotation(0.2),
+    layers.RandomZoom(0.2),
+    layers.RandomTranslation(0.1, 0.1),
+
+    layers.RandomBrightness(factor=0.2),
+    layers.RandomContrast(0.3),
+    layers.RandomSaturation(0.3),
+    layers.RandomHue(0.08),
+    layers.GaussianNoise(0.05),
+
+    
+    #layers.Lambda(random_jpeg_batch, output_shape=(256, 256, 3))
 ])
 
 

@@ -12,9 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginAction } from "@/lib/supabase/auth";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function LoginCard() {
+  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -30,7 +33,8 @@ export function LoginCard() {
     });
 
     if (succ) {
-      console.log("Account was successfully logged into!!!");
+      toast("Successful Login. Welcome Back!", {});
+      router.push("/home");
     } else {
       console.error("Something unexpected occurred!");
     }

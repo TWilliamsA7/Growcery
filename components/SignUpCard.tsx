@@ -13,9 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUpAction } from "@/lib/supabase/auth";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function SignUpCard() {
+  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -35,7 +38,8 @@ export function SignUpCard() {
     });
 
     if (succ) {
-      console.log("Account was successfully created!!!");
+      toast("Successful Account Creation!", {});
+      router.push("/select-role");
     } else {
       console.error("Something unexpected occurred!");
     }

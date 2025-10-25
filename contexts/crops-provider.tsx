@@ -10,83 +10,85 @@ import {
 import { useUser } from "./user-provider";
 import { supabase } from "@/utils/supabase/client";
 
-export interface Grocery {
-  grocery_id: string;
+export interface Crop {
+  crop_id: string;
   name: string;
-  bought_at: string;
+  scanned_at: string;
   expires_at: string | null;
+  harvest_at: string | null;
   cover_image: string | null;
+  viability: number | null;
 }
 
-interface GroceriesContextType {
-  groceries: Grocery[];
+interface CropContextType {
+  crops: Crop[];
   isLoading: Boolean;
-  addGrocery: (newGrocery: Partial<Grocery>) => Promise<Grocery | null>;
-  deleteGrocery: (groceryId: string) => Promise<void>;
+  addCrop: (newCrop: Partial<Crop>) => Promise<Crop | null>;
+  deleteCrop: (cropId: string) => Promise<void>;
 }
 
-interface GroceriesProviderProps {
+interface CropProviderProps {
   children: ReactNode;
 }
 
-const GroceriesContext = createContext<GroceriesContextType | undefined>(
-  undefined
-);
+const CropContext = createContext<CropContextType | undefined>(undefined);
 
-export function useGroceries() {
-  const context = useContext(GroceriesContext);
+export function useCrop() {
+  const context = useContext(CropContext);
   if (!context) {
-    throw new Error("useGroceries must be used within a GroceriesProvider");
+    throw new Error("useCrop must be used within a CropProvider");
   }
   return context;
 }
 
-export function GroceriesProvider({ children }: GroceriesProviderProps) {
-  const [groceries, setGroceries] = useState<Grocery[]>([]);
+export function CropProvider({ children }: CropProviderProps) {
+  const [crops, setCrops] = useState<Crop[]>([]);
   const [isLoading, setIsLoading] = useState<Boolean>(true);
   const { user, isLoading: userLoading } = useUser();
 
-  const fetchGroceries = async () => {
+  const fetchCrops = async () => {
     setIsLoading(true);
 
     try {
       if (!user) throw new Error("Error: User must be authenticated!");
 
       const { data, error } = await supabase
-        .from("groceries")
-        .select("grocery_id, name, bought_at, expires_at, cover_image")
+        .from("crops")
+        .select(
+          "crop_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
+        )
         .eq("owner_id", user.id);
 
       if (error) throw error;
 
-      setGroceries(data);
+      setCrops(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
       } else {
         console.error("An unknown error has occurred:", err);
       }
-      setGroceries([]);
+      setCrops([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addGrocery = async (
-    newGrocery: Partial<Grocery>
-  ): Promise<Grocery | null> => {
+  const addCrop = async (newCrop: Partial<Crop>): Promise<Crop | null> => {
     try {
       if (!user) throw new Error("User is not authenticated!");
 
       const { data, error } = await supabase
-        .from("groceries")
-        .insert(newGrocery)
-        .select("grocery_id, name, bought_at, expires_at, cover_image")
+        .from("crops")
+        .insert(newCrop)
+        .select(
+          "crop_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
+        )
         .single();
 
       if (error) throw error;
 
-      setGroceries((prev) => [...prev, data]);
+      setCrops((prev) => [...prev, data]);
 
       return data;
     } catch (err: unknown) {
@@ -99,18 +101,18 @@ export function GroceriesProvider({ children }: GroceriesProviderProps) {
     }
   };
 
-  const deleteGrocery = async (groceryId: string): Promise<void> => {
+  const deleteCrop = async (cropId: string): Promise<void> => {
     try {
       if (!user) throw new Error("User is not authenticated!");
 
       const { error } = await supabase
-        .from("groceries")
+        .from("crops")
         .delete()
-        .eq("grocery_id", groceryId);
+        .eq("crop_id", cropId);
 
       if (error) throw error;
 
-      setGroceries((prev) => prev.filter((g) => g.grocery_id !== groceryId));
+      setCrops((prev) => prev.filter((c) => c.crop_id !== cropId));
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
@@ -122,20 +124,16 @@ export function GroceriesProvider({ children }: GroceriesProviderProps) {
 
   useEffect(() => {
     if (!userLoading) {
-      fetchGroceries();
+      fetchCrops();
     }
   }, [userLoading]);
 
   const value = {
-    groceries,
+    crops,
     isLoading,
-    addGrocery,
-    deleteGrocery,
+    addCrop,
+    deleteCrop,
   };
 
-  return (
-    <GroceriesContext.Provider value={value}>
-      {children}
-    </GroceriesContext.Provider>
-  );
+  return <CropContext.Provider value={value}>{children}</CropContext.Provider>;
 }

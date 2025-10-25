@@ -13,11 +13,9 @@ import { supabase } from "@/utils/supabase/client";
 export interface Produce {
   produce_id: string;
   name: string;
-  scanned_at: string;
+  bought_at: string;
   expires_at: string | null;
-  harvest_at: string | null;
   cover_image: string | null;
-  viability: number | null;
 }
 
 interface ProduceContextType {
@@ -54,9 +52,7 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
 
       const { data, error } = await supabase
         .from("produce")
-        .select(
-          "produce_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
-        )
+        .select("produce_id, name, bought_at, expires_at, cover_image")
         .eq("owner_id", user.id);
 
       if (error) throw error;
@@ -83,9 +79,7 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
       const { data, error } = await supabase
         .from("produce")
         .insert(newProduce)
-        .select(
-          "produce_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
-        )
+        .select("produce_id, name, bought_at, expires_at, cover_image")
         .single();
 
       if (error) throw error;
@@ -114,7 +108,7 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
 
       if (error) throw error;
 
-      setProduce((prev) => prev.filter((p) => p.produce_id !== produceId));
+      setProduce((prev) => prev.filter((g) => g.produce_id !== produceId));
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);

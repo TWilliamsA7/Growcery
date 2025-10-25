@@ -5,14 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Camera, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useProfile } from "@/contexts/profile-provider";
 
 export default function ScanPage() {
   const router = useRouter();
+  const { profile } = useProfile();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+
+  const dataURLtoFile = async (
+    dataUrl: string,
+    filename: string
+  ): Promise<File> => {
+    // Fetch the data URL content
+    const res = await fetch(dataUrl);
+    // Get the Blob object
+    const blob = await res.blob();
+    // Create a File object from the Blob
+    return new File([blob], filename, { type: blob.type });
+  };
 
   // Function to start the camera stream (same logic as before)
   const startCamera = useCallback(async () => {
@@ -64,33 +78,55 @@ export default function ScanPage() {
   }, [startCamera, stopCamera]);
 
   // Handle capture and download (same logic as before)
-  const handleCapture = () => {
+  const handleCapture = async () => {
     if (!videoRef.current || !isCameraActive || isCapturing) return;
 
     setIsCapturing(true);
 
-    const video = videoRef.current;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
+    try {
+      if (!profile) throw new Error("User profile does not exist!");
 
-    if (ctx) {
-      // Mirror reversal logic
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-      const imageURL = canvas.toDataURL("image/png");
+      if (ctx) {
+        // Mirror reversal logic
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
 
-      const link = document.createElement("a");
-      link.href = imageURL;
-      link.download = `capture-${new Date().getTime()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        const imageURL = canvas.toDataURL("image/png");
+        const capture: File = await dataURLtoFile(imageURL, "capture.png");
+
+        const formData = new FormData();
+        formData.append("image", capture);
+        formData.append("type", profile.user_type);
+
+        // Send the request to Next.js Route Handler
+        const response = await fetch("/api/image/classify", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("Response:", result);
+        } else {
+          console.error("Response:", result);
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("An unknown error has occurred:", err);
+      }
+    } finally {
+      setIsCapturing(false);
     }
-
-    setIsCapturing(false);
   };
 
   return (

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 
-const EXTERNAL_ENDPOINT: string = "YOUR_EXTERNAL_API_URL/file-receiver";
+const AMD_CLASSIFIER_ENDPOINT: string = process.env.AMD_CLASSIFIER_ENDPOINT!;
 
 export async function POST(request: Request) {
   try {
-    // 1. Get the form data from the incoming request
+    // Get the form data from the incoming request
     const data = await request.formData();
 
-    // 2. Extract the file (assuming the client sent it under the key 'image')
+    // Extract image from formData
     const file: File | null = data.get("image") as unknown as File;
 
     if (!file) {
@@ -17,14 +17,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Prepare the new FormData object for the external endpoint
+    // Prepare the new FormData object for the external endpoint
     const forwardFormData = new FormData();
-    forwardFormData.append("file", file, file.name); // 'file' is the key expected by the external API.
+    forwardFormData.append("file", file, file.name);
 
     // 4. Send the POST request to the external endpoint
-    const response = await fetch(EXTERNAL_ENDPOINT, {
+    const response = await fetch(AMD_CLASSIFIER_ENDPOINT, {
       method: "POST",
-      body: forwardFormData, // FormData handles the Content-Type header
+      body: forwardFormData,
     });
 
     if (!response.ok) {

@@ -42,3 +42,34 @@ export async function signUpAction({
     return false;
   }
 }
+
+export async function loginAction({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}): Promise<Boolean> {
+  try {
+    // Create an account in supabase
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email,
+        password,
+      }
+    );
+
+    if (signInError) throw signInError;
+
+    if (!data.user) throw new Error("Could not access user object!");
+
+    return true;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err.message);
+    } else {
+      console.error("An unknown error has occurred:", err);
+    }
+    return false;
+  }
+}

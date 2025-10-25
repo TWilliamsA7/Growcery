@@ -10,11 +10,75 @@ import { useProfile } from "@/contexts/profile-provider";
 export default function ScanPage() {
   const router = useRouter();
   const { profile } = useProfile();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+
+  // Ref for the video element
+  const videoRef = useRef<HTMLVideoElement>(null);
+  // Ref to store the MediaStream object
+  const streamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    let currentStream: MediaStream | null = null;
+
+    // Function to start the camera stream
+    const startStream = async () => {
+      try {
+        // 1. Get the stream
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        streamRef.current = currentStream; // Store stream in ref for cleanup
+
+        const videoElement = videoRef.current;
+        if (videoElement) {
+          // 2. Attach stream to video element
+          videoElement.srcObject = currentStream;
+
+          // 3. Attempt to play and use .catch() to handle potential interruptions
+          //    This helps, but proper cleanup is the main solution.
+          videoElement.play().catch((error) => {
+            // Check for the specific 'interrupted' error here and ignore it,
+            // while logging other unexpected errors.
+            if (
+              error.name !== "NotAllowedError" &&
+              error.name !== "AbortError"
+            ) {
+              console.warn(
+                "Video playback was interrupted, likely due to navigation:",
+                error
+              );
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+      }
+    };
+
+    startStream();
+
+    // 4. --- CLEANUP FUNCTION ---
+    // This runs when the component unmounts (i.e., when navigating away)
+    return () => {
+      const videoElement = videoRef.current;
+
+      // A. Stop all tracks on the stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => {
+          track.stop();
+        });
+        streamRef.current = null;
+      }
+
+      // B. Remove the stream source from the video element
+      if (videoElement) {
+        videoElement.srcObject = null;
+        videoElement.pause();
+      }
+    };
+  }, []);
 
   const dataURLtoFile = async (
     dataUrl: string,
@@ -68,14 +132,6 @@ export default function ScanPage() {
       videoRef.current.srcObject = null;
     }
   }, []);
-
-  // Effect to start camera on mount and stop on unmount
-  useEffect(() => {
-    startCamera();
-    return () => {
-      stopCamera();
-    };
-  }, [startCamera, stopCamera]);
 
   // Handle capture and download (same logic as before)
   const handleCapture = async () => {

@@ -14,7 +14,6 @@ export interface Crop {
   crop_id: string;
   name: string;
   scanned_at: string;
-  expires_at: string | null;
   harvest_at: string | null;
   cover_image: string | null;
   viability: number | null;
@@ -54,9 +53,7 @@ export function CropProvider({ children }: CropProviderProps) {
 
       const { data, error } = await supabase
         .from("crops")
-        .select(
-          "crop_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
-        )
+        .select("crop_id, name, scanned_at, harvest_at, cover_image, viability")
         .eq("owner_id", user.id);
 
       if (error) throw error;
@@ -81,9 +78,7 @@ export function CropProvider({ children }: CropProviderProps) {
       const { data, error } = await supabase
         .from("crops")
         .insert(newCrop)
-        .select(
-          "crop_id, name, scanned_at, harvest_at, expires_at, cover_image, viability"
-        )
+        .select("crop_id, name, scanned_at, harvest_at, cover_image, viability")
         .single();
 
       if (error) throw error;

@@ -4,6 +4,8 @@ import "./globals.css";
 import { UserProvider } from "@/contexts/user-provider";
 import { ProfileProvider } from "@/contexts/profile-provider";
 import { Toaster } from "sonner";
+import { ProduceProvider } from "@/contexts/produce-provider";
+import { CropProvider } from "@/contexts/crops-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +34,12 @@ export default function RootLayout({
       >
         <UserProvider>
           <ProfileProvider>
-            {children}
-            <Toaster />
+            <ProduceProvider>
+              <CropProvider>
+                {children}
+                <Toaster />
+              </CropProvider>
+            </ProduceProvider>
           </ProfileProvider>
         </UserProvider>
       </body>

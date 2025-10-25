@@ -37,7 +37,7 @@ const CarrotLoader: React.FC<CarrotLoaderProps> = ({ isActive }) => {
   };
 
   return (
-    <div style={overlayStyle}>
+    <div style={overlayStyle} className="pointer-events-none">
       <img
         src="/Throbber.png"
         alt="Loading Spinner"

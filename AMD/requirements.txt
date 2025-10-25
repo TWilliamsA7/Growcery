@@ -1,0 +1,22 @@
+# --- PYTORCH ROCM INDEX ---
+# This line tells pip to check the ROCm wheel location in addition to PyPI.
+--extra-index-url https://download.pytorch.org/whl/rocm6.1
+
+# --- Web Server ---
+# These are found on the standard PyPI index (the default index).
+fastapi
+uvicorn[standard]
+python-multipart
+
+# --- PyTorch Core Libraries ---
+# These will be pulled from the --extra-index-url (ROCm site).
+torch
+torchvision
+torchaudio
+
+# --- Image Processing ---
+# These are standard libraries found on PyPI.
+opencv-python-headless
+Pillow
+numpy==1.26.4
+# scikit-image

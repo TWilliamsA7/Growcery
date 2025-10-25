@@ -2,9 +2,21 @@
 
 import { SelectRoleModal } from "@/components/SelectRoleModal";
 import { useUser } from "@/contexts/user-provider";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function SignupForm() {
+export default function SelectRolePage() {
   const { user } = useUser();
+  const router = useRouter();
+
+  const handleExit = (open: Boolean) => {
+    if (open === false) {
+      toast("Thank you for your choice", {
+        description: "It can be changed at any point later",
+      });
+      router.push("/home");
+    }
+  };
 
   return (
     <>
@@ -13,6 +25,7 @@ export default function SignupForm() {
         description="This will determine stuff"
         openDefault={true}
         triggerText="Open It"
+        onOpenChange={handleExit}
       />
     </>
   );

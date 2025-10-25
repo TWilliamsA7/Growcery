@@ -19,6 +19,7 @@ interface SelectRoleModalProps {
   description: string;
   openDefault: boolean;
   triggerText: string;
+  onOpenChange?: (open: Boolean) => void;
 }
 
 export function SelectRoleModal({
@@ -26,12 +27,13 @@ export function SelectRoleModal({
   description,
   openDefault = false,
   triggerText,
+  onOpenChange,
 }: SelectRoleModalProps) {
   const { updateUserType, profile } = useProfile();
   const router = useRouter();
 
   return (
-    <Dialog defaultOpen={openDefault}>
+    <Dialog defaultOpen={openDefault} onOpenChange={onOpenChange}>
       <form>
         <DialogTrigger asChild>
           <Button variant="outline">{triggerText}</Button>

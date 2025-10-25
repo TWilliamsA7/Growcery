@@ -21,6 +21,7 @@ export interface Profile {
 interface ProfileContextType {
   profile: Profile | null;
   isLoading: Boolean;
+  updateUserType: (userType: "farmer" | "consumer") => Promise<void>;
 }
 
 interface ProfileProviderProps {
@@ -69,6 +70,29 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     }
   };
 
+  const updateUserType = async (userType: "consumer" | "farmer") => {
+    try {
+      if (!user) throw new Error("User is not authenticated!");
+
+      if (profile?.user_type === userType) return;
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ user_type: userType })
+        .eq("user_id", user.id);
+
+      setProfile((prev) => (prev ? { ...prev, user_type: userType } : null));
+
+      if (error) throw error;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("An unknown error has occurred:", err);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!userLoading) {
       fetchProfile();
@@ -78,6 +102,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
   const value = {
     profile,
     isLoading,
+    updateUserType,
   };
 
   return (

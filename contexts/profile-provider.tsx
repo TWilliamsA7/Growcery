@@ -20,6 +20,7 @@ export interface Profile {
 
 interface ProfileContextType {
   profile: Profile | null;
+  isLoading: Boolean;
 }
 
 interface ProfileProviderProps {
@@ -38,9 +39,12 @@ export function useProfile() {
 
 export function ProfileProvider({ children }: ProfileProviderProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState<Boolean>(true);
   const { user, isLoading: userLoading } = useUser();
 
   const fetchProfile = async () => {
+    setIsLoading(true);
+
     try {
       if (!user) throw new Error("Error: User must be authenticated!");
 
@@ -60,6 +64,8 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
         console.error("An unknown error has occurred:", err);
       }
       setProfile(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,6 +77,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 
   const value = {
     profile,
+    isLoading,
   };
 
   return (

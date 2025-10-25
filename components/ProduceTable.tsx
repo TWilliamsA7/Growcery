@@ -92,7 +92,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead colSpan={4} className="text-center">
-              Your {expired ? "Expired" : "Recent"} Produce
+              {expired ? "Expired" : "Recent"} Produce
             </TableHead>
           </TableRow>
           <TableRow>
@@ -114,7 +114,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead colSpan={4} className="text-center">
-            Your {expired ? "Expired" : "Recent"} Produce
+            {expired ? "Expired" : "Recent"} Produce
           </TableHead>
         </TableRow>
         <TableRow>

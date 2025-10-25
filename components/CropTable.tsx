@@ -93,8 +93,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead colSpan={4} className="text-center">
-              Your{" "}
-              {past_harvest ? "Crops That are Past Harvest" : "Recent Crops"}
+              {past_harvest ? "Crops That Are Past Harvest" : "Recent Crops"}
             </TableHead>
           </TableRow>
           <TableRow>
@@ -119,7 +118,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead colSpan={4} className="text-center">
-            Your {past_harvest ? "Crops That are Past Harvest" : "Recent Crops"}
+            {past_harvest ? "Crops That are Past Harvest" : "Recent Crops"}
           </TableHead>
         </TableRow>
         <TableRow>

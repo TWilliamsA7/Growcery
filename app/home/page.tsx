@@ -7,9 +7,11 @@ import MobileButton from "@/components/MobileButton";
 import { ProduceTable } from "@/components/ProduceTable";
 import { SelectRoleModal } from "@/components/SelectRoleModal";
 import { useProfile } from "@/contexts/profile-provider";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { profile } = useProfile();
+  const router = useRouter();
 
   return (
     <div>
@@ -23,7 +25,9 @@ export default function HomePage() {
         />
       </header>
       <main>
-        <MobileButton>Start Scan</MobileButton>
+        <MobileButton onClick={() => router.push("/scan")}>
+          Start Scan
+        </MobileButton>
 
         {profile?.user_type === "consumer" ? (
           <>

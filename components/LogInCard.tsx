@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginAction } from "@/lib/supabase/auth";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function LoginCard() {
   const [email, setEmail] = useState<string>("");
@@ -30,7 +31,7 @@ export function LoginCard() {
     });
 
     if (succ) {
-      console.log("Account was successfully logged into!!!");
+      toast("Successful Login. Welcome Back!", {});
     } else {
       console.error("Something unexpected occurred!");
     }

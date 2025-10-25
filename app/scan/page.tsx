@@ -1,0 +1,158 @@
+"use client";
+
+import { useRef, useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Camera, X, Download } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
+export default function ScanPage() {
+  const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  // Function to start the camera stream (same logic as before)
+  const startCamera = useCallback(async () => {
+    setError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      }
+    } catch (err: any) {
+      // Improved error handling for a dedicated page
+      const errorMessage =
+        err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+          ? "Camera access denied. Please allow permissions."
+          : err.name === "NotFoundError"
+          ? "No camera found."
+          : `Error: ${err.message}`;
+
+      setError(errorMessage);
+      setIsCameraActive(false);
+    }
+  }, []);
+
+  // Function to stop the camera stream (same logic as before)
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      setIsCameraActive(false);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  // Effect to start camera on mount and stop on unmount
+  useEffect(() => {
+    startCamera();
+    return () => {
+      stopCamera();
+    };
+  }, [startCamera, stopCamera]);
+
+  // Handle capture and download (same logic as before)
+  const handleCapture = () => {
+    if (!videoRef.current || !isCameraActive || isCapturing) return;
+
+    setIsCapturing(true);
+
+    const video = videoRef.current;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+
+    if (ctx) {
+      // Mirror reversal logic
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+
+      const imageURL = canvas.toDataURL("image/png");
+
+      const link = document.createElement("a");
+      link.href = imageURL;
+      link.download = `capture-${new Date().getTime()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    setIsCapturing(false);
+  };
+
+  return (
+    // The main container now enforces a true full-screen, mobile-first experience
+    <div className="h-screen w-screen flex flex-col p-0 bg-black text-white overflow-hidden">
+      {/* 1. Top Bar */}
+      <div className="flex justify-between items-center p-4 bg-zinc-900 z-10 shrink-0">
+        <h1 className="text-xl font-bold">Camera</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()} // Use router.back() to close the page
+          className="text-white hover:bg-zinc-700"
+        >
+          <X className="h-6 w-6" />
+          <span className="sr-only">Close Camera</span>
+        </Button>
+      </div>
+
+      {/* 2. Camera Stream Area (takes up all available space) */}
+      <div className="relative grow flex items-center justify-center overflow-hidden bg-black">
+        {error ? (
+          <p className="text-red-400 p-8 text-center text-lg">{error}</p>
+        ) : (
+          <>
+            {!isCameraActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-gray-300">
+                <p>Waiting for stream...</p>
+              </div>
+            )}
+            {/* Video Element - Centered and fills the available space */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="absolute w-full h-full object-cover transform scale-x-[-1]"
+              style={{ objectPosition: "center" }}
+            />
+          </>
+        )}
+      </div>
+
+      {/* 3. Bottom Bar - Controls */}
+      <div className="flex justify-center items-center p-4 bg-zinc-900 z-10 shrink-0">
+        <Button
+          onClick={handleCapture}
+          disabled={!isCameraActive || isCapturing}
+          // Using our custom orange styling with a large, centered button
+          className={cn(
+            "bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.98] transition-all",
+            "h-16 w-16 rounded-full p-0 flex items-center justify-center shadow-2xl shadow-orange-500/60"
+          )}
+        >
+          {isCapturing ? (
+            <Download className="h-6 w-6 animate-pulse" />
+          ) : (
+            <Camera className="h-8 w-8" />
+          )}
+          <span className="sr-only">Take Photo</span>
+        </Button>
+      </div>
+    </div>
+  );
+}

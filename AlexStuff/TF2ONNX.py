@@ -4,8 +4,8 @@ import tf2onnx
 import os
 
 # Path to your trained model (.keras)
-MODEL_PATH = "/home/agn/ProgramSpace/TensorFlow/Growcery/checkpoint.keras"
-ONNX_PATH = "/home/agn/ProgramSpace/TensorFlow/Growcery/efficientnetv2s_produce.onnx"
+MODEL_PATH = "/home/agn/ProgramSpace/TensorFlow/Growcery/checkpointMobileNetProduce.keras"
+ONNX_PATH = "/home/agn/ProgramSpace/TensorFlow/Growcery/MobileNet_Produce.onnx"
 
 # Load the model
 model = models.load_model(MODEL_PATH)

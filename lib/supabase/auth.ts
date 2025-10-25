@@ -73,3 +73,18 @@ export async function loginAction({
     return false;
   }
 }
+
+export async function logoutAction(): Promise<Boolean> {
+  try {
+    const { error: logOutError } = await supabase.auth.signOut();
+    if (logOutError) throw logOutError;
+    return true;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err.message);
+    } else {
+      console.error("An unknown error has occurred:", err);
+    }
+    return false;
+  }
+}

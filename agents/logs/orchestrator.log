@@ -1,0 +1,24 @@
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:15: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  classifier_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:21: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  attribute_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:27: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  health_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:33: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  storage_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:39: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  treatment_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:45: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  date_client = RemoteA2aAgent(
+/Users/nataliacano/Programming/Growcery/agents/orchestrator_agent/orchestrator_agent.py:51: UserWarning: [EXPERIMENTAL] RemoteA2aAgent: ADK Implementation for A2A support (A2aAgentExecutor, RemoteA2aAgent and corresponding supporting components etc.) is in experimental mode and is subjected to breaking changes. A2A protocol and SDK arethemselves not experimental. Once it's stable enough the experimental mode will be removed. Your feedback is welcome.
+  physical_client = RemoteA2aAgent(
+INFO:     Started server process [16502]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8009 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54283 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54283 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [16502]

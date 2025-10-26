@@ -175,7 +175,7 @@ export default function ScanPage() {
             label.includes("rear") ||
             label.includes("environment");
         }
-        setIsMirrored(mirror);
+        setIsMirrored(!mirror);
         setIsCameraActive(true);
         setNeedUserGestureToStart(false);
       }

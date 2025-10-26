@@ -6,6 +6,8 @@ import { Camera, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/contexts/profile-provider";
+import { FoodInfoSheet } from "@/components/FoodInfoSheet";
+import CarrotLoader from "@/components/CarrotLoader";
 
 export default function ScanPage() {
   const router = useRouter();
@@ -35,7 +37,7 @@ export default function ScanPage() {
         if (videoElement) {
           // 2. Attach stream to video element
           videoElement.srcObject = currentStream;
-
+          setIsCameraActive(true);
           // 3. Attempt to play and use .catch() to handle potential interruptions
           //    This helps, but proper cleanup is the main solution.
           videoElement.play().catch((error) => {
@@ -245,6 +247,31 @@ export default function ScanPage() {
           <span className="sr-only">Take Photo</span>
         </Button>
       </div>
+
+      {/* <CarrotLoader isActive={true} /> */}
+
+      {/* <FoodInfoSheet
+        open={true}
+        foodInfo={{
+          user_type: "consumer",
+          expiration_date: "10/29/2025",
+          harvest_date: "11/23/2026",
+          produce_name: "Baby Carrot",
+          crop_name: "Baby Carror Plant",
+          storage_method: "This should be stored in a cool area",
+          health: "Healthy",
+          attributes: "Small scratches, and blotches",
+          physical_qualities: "Very Firm",
+          treatment: "Rub some water",
+          location: "Florida, United States",
+          disease: "None",
+        }}
+        type="farmer"
+        onOpenChange={() => {}}
+        foodImage="/globe.svg"
+        onDiscard={() => {}}
+        onSave={() => {}}
+      /> */}
     </div>
   );
 }

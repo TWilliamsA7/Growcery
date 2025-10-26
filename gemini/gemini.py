@@ -1,6 +1,9 @@
 import os
 import json
 import logging
+from fastapi import FastAPI, File, UploadFile, Form
+from fastapi.responses import JSONResponse
+from flask import Flask, request, jsonify
 from google import genai
 from google.genai import types
 
@@ -133,3 +136,47 @@ create_multimodal_prompt(
     item_type=my_item_type,
     user_prompt=my_prompt
 )
+
+app = Flask(__name__)
+
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    """
+    Exposes an endpoint that accepts an image + JSON + metadata.
+    Calls your existing create_multimodal_prompt() function.
+    """
+    try:
+        # Get form-data fields
+        image_file = request.files.get("image")
+        json_file = request.files.get("json")
+        location = request.form.get("location", "Unknown")
+        item_type = request.form.get("item_type", "Unknown")
+        user_prompt = request.form.get("user_prompt", "No prompt provided")
+
+        if not image_file or not json_file:
+            return jsonify({"error": "Both image and JSON files are required"}), 400
+
+        # Save temporary copies
+        image_path = "uploaded_image.png"
+        json_path = "uploaded_data.json"
+        image_file.save(image_path)
+        json_file.save(json_path)
+
+        # Call your existing function (which runs Gemini)
+        create_multimodal_prompt(
+            image_path=image_path,
+            json_path=json_path,
+            location=location,
+            item_type=item_type,
+            user_prompt=user_prompt
+        )
+
+        return jsonify({"status": "success", "message": "Gemini prompt executed."})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    # Run Flask app
+    app.run(host="0.0.0.0", port=5000, debug=True)

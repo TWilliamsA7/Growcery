@@ -39,7 +39,7 @@ export function SignUpCard() {
 
     if (succ) {
       toast("Successful Account Creation!", {});
-      router.push("/select-role");
+      router.push("/onboarding");
     } else {
       console.error("Something unexpected occurred!");
     }

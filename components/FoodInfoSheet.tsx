@@ -17,6 +17,7 @@ import { GeminiResponse } from "@/lib/types/classification";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Pencil } from "lucide-react";
 
 interface FoodInfoSheetProps {
   open: boolean;
@@ -55,17 +56,21 @@ export function FoodInfoSheet({
           <Image
             src={foodImage}
             alt={"Image of food"}
-            width={400}
-            height={400}
+            width={350}
+            height={350}
             className="object-cover"
             priority
           />
         </div>
-        <Input
-          className="w-full mx-2"
-          value={foodName}
-          onChange={(e) => setFoodName(e.target.value)}
-        />
+        <div className="flex flex-row justify-center align-middle">
+          <Pencil className="h-4 w-4" />
+          <Input
+            className="w-7/8 mx-2bg-transparent border-none focus:outline-none p-0 text-xl font-semibold text-gray-900 placeholder:text-gray-500"
+            value={foodName}
+            autoFocus={false}
+            onChange={(e) => setFoodName(e.target.value)}
+          />
+        </div>
 
         <div className="w-full mx-2">
           <Label htmlFor="health">Health</Label>
@@ -102,18 +107,18 @@ export function FoodInfoSheet({
           <p id="physAttr">{foodInfo.physical_qualities}</p>
         </div>
 
-        <SheetFooter>
-          <Button
-            onClick={onSave}
-            className="bg-green-400 text-white hover:bg-green-700/90 shadow-lg shadow-green-500/50 rounded-se-2xl"
-          >
-            Save Item
-          </Button>
+        <SheetFooter className="flex flex-row justify-center gap-2 p-4 pt-0">
           <Button
             onClick={onDiscard}
-            className="bg-red-400 text-white hover:bg-red-700/90 shadow-lg shadow-red-500/50 rounded-se-2xl"
+            className="bg-red-500 text-white hover:bg-red-700 w-auto shadow-md"
           >
             Discard Item
+          </Button>
+          <Button
+            onClick={onSave}
+            className="bg-green-600 text-white hover:bg-green-700 w-auto shadow-md"
+          >
+            Save Item
           </Button>
         </SheetFooter>
       </SheetContent>

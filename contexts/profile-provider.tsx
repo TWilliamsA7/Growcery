@@ -16,12 +16,14 @@ export interface Profile {
   last_name: string;
   email: string;
   user_type: "farmer" | "consumer";
+  location: string | null;
 }
 
 interface ProfileContextType {
   profile: Profile | null;
   isLoading: Boolean;
   updateUserType: (userType: "farmer" | "consumer") => Promise<void>;
+  updateUserLocation: (location: string) => Promise<void>;
 }
 
 interface ProfileProviderProps {
@@ -51,7 +53,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id, first_name, last_name, email, user_type")
+        .select("user_id, first_name, last_name, email, user_type, location")
         .eq("user_id", user.id)
         .single();
 
@@ -93,6 +95,27 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     }
   };
 
+  const updateUserLocation = async (location: string) => {
+    try {
+      if (!user) throw new Error("User is not authenticated!");
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ location })
+        .eq("user_id", user.id);
+
+      setProfile((prev) => (prev ? { ...prev, location } : null));
+
+      if (error) throw error;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("An unknown error has occurred:", err);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!userLoading) {
       fetchProfile();
@@ -103,6 +126,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     profile,
     isLoading,
     updateUserType,
+    updateUserLocation,
   };
 
   return (

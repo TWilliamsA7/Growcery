@@ -54,7 +54,8 @@ export function CropProvider({ children }: CropProviderProps) {
       const { data, error } = await supabase
         .from("crops")
         .select("crop_id, name, scanned_at, harvest_at, cover_image, viability")
-        .eq("owner_id", user.id);
+        .eq("owner_id", user.id)
+        .order("harvest_at", { ascending: false });
 
       if (error) throw error;
 
@@ -118,7 +119,7 @@ export function CropProvider({ children }: CropProviderProps) {
   };
 
   useEffect(() => {
-    if (!userLoading) {
+    if (!userLoading && user) {
       fetchCrops();
     }
   }, [userLoading]);

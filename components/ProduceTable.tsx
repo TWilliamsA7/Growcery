@@ -22,7 +22,12 @@ interface ProduceTableProps {
 }
 
 export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
-  const { produce, deleteProduce, addProduce } = useProduce();
+  const {
+    produce,
+    deleteProduce,
+    addProduce,
+    isLoading: produceLoading,
+  } = useProduce();
   const [lastDeletedProduce, setLastDeletedProduce] = useState<Produce | null>(
     null
   );
@@ -77,7 +82,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
     } else {
       setDisplayProduce(sortedProduce);
     }
-  }, [sort, ascending, expired, limit, produce]);
+  }, [sort, ascending, expired, limit, produce, produceLoading]);
 
   const toggleSort = (sortTag: "name" | "expDate" | "purDate") => {
     if (sortTag == sort) {

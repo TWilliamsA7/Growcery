@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const AMD_CLASSIFIER_ENDPOINT: string = process.env.AMD_CLASSIFIER_ENDPOINT!;
+const GEMINI_END_POINT: string = process.env.GEMINI_END_POINT!;
 
 export async function POST(request: Request) {
   try {
@@ -43,7 +44,36 @@ export async function POST(request: Request) {
 
     // 5. Success
     const externalData = await response.json();
-    return NextResponse.json(externalData, { status: 200 });
+
+    const geminiReq = {
+      id: "000-000-00",
+      jsonrpc: "2",
+      method: "orchestrate",
+      params: {
+        image: file,
+        type: custType,
+        location: "Florida, United States",
+        ...externalData,
+      },
+    };
+
+    const geminiRes = await fetch(GEMINI_END_POINT, {
+      method: "POST",
+      body: JSON.stringify(geminiReq),
+    });
+
+    if (!geminiRes.ok) {
+      const errorBody = await geminiRes.text();
+      console.error("External API failed:", errorBody);
+      return NextResponse.json(
+        { message: "External API call failed", details: errorBody },
+        { status: geminiRes.status }
+      );
+    }
+
+    const foodData = await geminiRes.json();
+
+    return NextResponse.json(foodData, { status: 200 });
   } catch (error) {
     console.error("Error forwarding request:", error);
     return NextResponse.json(

@@ -1,0 +1,33 @@
+{
+    "classifying": "You are an AI vision reasoning model that refines an AMD-accelerated classification output. You are receiving: the type of object ('crop' or 'produce'), a JSON of class probabilities from the AMD inference model, and an image of the object. Determine the single most likely object name (e.g. 'cucumber', 'avocado', 'tomato plant', 'apple', 'wheat plant') by combining the image and probabilities. Ignore any descriptors related to condition, health, or quality such as 'rotten', 'healthy', 'diseased', 'fresh', or similar—only return the base type of crop or produce. Ensure the object name follows English grammatical rules for nouns (e.g. 'tomato plant' not 'plant tomato'). Output only a single plain string representing the object name, with spaces for multi-word names. Do NOT include reasoning, explanations, formatting, markdown, or extra keys. Type: ***NAT PUT TYPE HERE***. JSON and image attached.",
+
+    "attributes": {
+        "farmer": "The image provided is a photo of the cucumber crop. Conduct an **EXHAUSTIVE** visual analysis, cataloging **ALL** observable, physical attributes of the plant itself.\n\n**STRICTLY EXCLUDE** any reference to the background, soil, lighting, atmosphere, or any non-plant elements.\n\n**CRITICAL INSTRUCTION:** You **must not** write any words, phrases, or introductory/concluding sentences before or after the descriptive list. The only output allowed is the list itself.\n\nFocus specifically on signs of stress, disease, or damage. Systematically analyze and describe the following components of the crop:\n1.\t**Leaf/Foliage:** Color (including any specific shade/tone descriptions), texture, presence of lesions, **chlorosis**, **necrosis**, curling, wilting, or odd vein patterns.\n2.\t**Stem/Trunk:** Deformities, cracks, **exudates** (ooze), **cankers**, or unusual thickening/thinning.\n3.\t**Fruit/Crop:** Deformities, **splotches**, rot, splitting, surface texture irregularities (e.g., scaly, fuzzy, smooth), and color deviations from a healthy state.\n\nYour output must be a single, detailed list containing a **minimum of 30 distinct words or descriptive phrases** that *only* describe the crop's attributes. Prioritize specific, technical, and visually detailed language.\n\nI already know the type or crop, and any other information besides the visual attributes, so do not give me any other information.\n\nList the output in a single sequence of words/phrases, separated by a comma and a single space (`, `). **Do not use any period or terminal or other punctuation besides commas anywhere in the result.** In other words, do not speak. Only write the list of words. I do not need commentary, I do not need further explanations or any other interactions.",
+        "consumer": "The image provided is a photo of a(n) cucumber.\nConduct an EXHAUSTIVE visual analysis, cataloging ALL observable, physical attributes of the post-harvest specimen itself.\nSTRICTLY EXCLUDE any reference to the packaging, display stand, background, lighting, or any non-produce elements.\nCRITICAL INSTRUCTION: You must not write any words, phrases, or introductory/concluding sentences before or after the descriptive list. The only output allowed is the list itself.\nFocus specifically on signs of post-harvest stress, damage, or decay. Systematically analyze and describe the following components of the specimen:\n\nCalyx/Stem Scar/Remnants: Color (including any specific shade/tone descriptions), presence of mold, shriveling, browning, dehydration, or residual leaf pieces.\nMain Body Surface: Deformities, pitting, chilling injury, cracks, water-soaking (leakage), scald, or unusual thickening/thinning of the rind/skin.\nOverall Appearance: Russeting, sunscald, rot, splitting, surface texture irregularities (e.g., scaly, waxy bloom, fuzzy, smooth), and color deviations from optimal maturity.\nYour output must be a single, detailed list containing a minimum of 30 distinct words or descriptive phrases that only describe the produce's attributes. Prioritize specific, technical, and visually detailed language.\nI already know the type of produce, and any other information besides the visual attributes, so do not give me any other information.\nList the output in a single sequence of words/phrases, separated by a comma and a single space (, ). Do not use any period or terminal or other punctuation besides commas anywhere in the result. In other words, do not speak. Only write the list of words. I do not need commentary, I do not need further explanations or any other interactions."
+    },
+
+    "diseases": {
+        "farmer": "",
+        "consumer": ""
+    },
+
+    "storage": {
+        "farmer": "",
+        "consumer": ""
+    },
+
+    "date_prediction": {
+        "farmer": "CRITICAL INSTRUCTION: Based on the user's location, crop, and the following visual attributes, calculate the single most probable ideal harvest date in the format MM/DD/YYYY. Output must contain only the 10 characters of the date.\n\nthe location is %s, the crop is a(n) %s, and the visual attributes are %s.\n\nI want absolutely NO other text. do not speak your reasoning, do not mention anything other than the ideal date of harvest, as I already know any other information about the crop.",
+        "consumer": "CRITICAL INSTRUCTION: Based on the produce's storage location, produce, and the following visual attributes, calculate the single most probable ideal use-by date in the format MM/DD/YYYY. Output must contain only the 10 characters of the date.\n\nthe storage location is %s, the produce is a(n) %s, and the visual attributes are %s.\n\nI want absolutely NO other text. do not speak your reasoning, do not mention anything other than the ideal use-by date, as I already know any other information about the produce."
+    },
+
+    "physical_qualities": {
+        "farmer": "",
+        "consumer": ""
+    },
+
+    "treatment": {
+        "farmer": "",
+        "consumer": ""
+    }
+}

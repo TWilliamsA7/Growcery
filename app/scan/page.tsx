@@ -32,61 +32,77 @@ export default function ScanPage() {
 
   useEffect(() => {
     let currentStream: MediaStream | null = null;
+    const videoElement = videoRef.current;
 
-    // Function to start the camera stream
+    // Ensure attributes are set before attaching stream (defensive)
+    if (videoElement) {
+      videoElement.muted = true;
+      videoElement.playsInline = true;
+      videoElement.autoplay = true;
+      // prevent accidental taps from pausing on some iOS versions
+      videoElement.style.userSelect = "none";
+    }
+
     const startStream = async () => {
       try {
-        // 1. Get the stream
+        // Prefer environment/back camera on mobile
         currentStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
         });
-        streamRef.current = currentStream; // Store stream in ref for cleanup
+        streamRef.current = currentStream;
 
-        const videoElement = videoRef.current;
-        if (videoElement) {
-          // 2. Attach stream to video element
-          videoElement.srcObject = currentStream;
-          setIsCameraActive(true);
-          // 3. Attempt to play and use .catch() to handle potential interruptions
-          //    This helps, but proper cleanup is the main solution.
-          videoElement.play().catch((error) => {
-            // Check for the specific 'interrupted' error here and ignore it,
-            // while logging other unexpected errors.
-            if (
-              error.name !== "NotAllowedError" &&
-              error.name !== "AbortError"
-            ) {
-              console.warn(
-                "Video playback was interrupted, likely due to navigation:",
-                error
-              );
-            }
-          });
-        }
-      } catch (error) {
-        console.error("Error accessing camera:", error);
+        if (!videoRef.current) return;
+        videoRef.current.srcObject = currentStream;
+
+        // Wait for metadata / canplay so videoWidth/videoHeight are available
+        await new Promise<void>((resolve, reject) => {
+          const v = videoRef.current!;
+          const onLoaded = () => {
+            v.removeEventListener("loadedmetadata", onLoaded);
+            v.removeEventListener("error", onErr);
+            resolve();
+          };
+          const onErr = (e: any) => {
+            v.removeEventListener("loadedmetadata", onLoaded);
+            v.removeEventListener("error", onErr);
+            reject(e);
+          };
+          v.addEventListener("loadedmetadata", onLoaded);
+          v.addEventListener("error", onErr);
+
+          // Defensive timeout fallback (optional)
+          setTimeout(() => resolve(), 1500);
+        });
+
+        // play() might reject — handle gracefully
+        await videoRef.current.play().catch((err) => {
+          console.warn("play() rejected", err);
+        });
+
+        // Only mark camera active when we have actual video dimensions / playing
+        setIsCameraActive(true);
+      } catch (err: any) {
+        console.error("Error accessing camera:", err);
+        setError(
+          err?.name === "NotAllowedError"
+            ? "Camera access denied."
+            : err?.message
+        );
+        setIsCameraActive(false);
       }
     };
 
     startStream();
 
-    // 4. --- CLEANUP FUNCTION ---
-    // This runs when the component unmounts (i.e., when navigating away)
     return () => {
-      const videoElement = videoRef.current;
-
-      // A. Stop all tracks on the stream
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => {
-          track.stop();
-        });
+        streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
-
-      // B. Remove the stream source from the video element
-      if (videoElement) {
-        videoElement.srcObject = null;
-        videoElement.pause();
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+        videoRef.current.pause();
       }
     };
   }, []);

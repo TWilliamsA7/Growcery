@@ -9,10 +9,14 @@ import { useProfile } from "@/contexts/profile-provider";
 import { FoodInfoSheet } from "@/components/FoodInfoSheet";
 import CarrotLoader from "@/components/CarrotLoader";
 import { GeminiResponse } from "@/lib/types/classification";
+import { Produce, useProduce } from "@/contexts/produce-provider";
+import { Crop, useCrop } from "@/contexts/crops-provider";
 
 export default function ScanPage() {
   const router = useRouter();
   const { profile } = useProfile();
+  const { addProduce } = useProduce();
+  const { addCrop } = useCrop();
   const [error, setError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [foodImageUrl, setFoodImageUrl] = useState<string | null>(null);
@@ -139,8 +143,6 @@ export default function ScanPage() {
     }
   }, []);
 
-  const openInfoDrawer = async () => {};
-
   // Handle capture and download (same logic as before)
   const handleCapture = async () => {
     if (!videoRef.current || !isCameraActive || isCapturing) return;
@@ -181,9 +183,9 @@ export default function ScanPage() {
 
         if (response.ok) {
           console.log("Response:", result);
-          openInfoDrawer();
         } else {
           console.error("Response:", result);
+          setError(result.message);
           throw new Error("Something went wrong!");
         }
       }
@@ -195,7 +197,38 @@ export default function ScanPage() {
       }
     } finally {
       setIsCapturing(false);
+      setSheetOpen(true);
     }
+  };
+
+  const handleSave = async () => {
+    if (!profile || !foodInfo) return;
+
+    if (profile.user_type === "consumer") {
+      const newProduce: Partial<Produce> = {
+        name: foodInfo.produce_name,
+        expires_at: new Date(foodInfo.expiration_date).toISOString(),
+      };
+
+      await addProduce(newProduce);
+    } else {
+      const newCrop: Partial<Crop> = {
+        name: foodInfo.crop_name,
+        harvest_at: new Date(foodInfo.harvest_date).toISOString(),
+      };
+
+      await addCrop(newCrop);
+    }
+
+    setSheetOpen(false);
+    setFoodImageUrl(null);
+    setFoodInfo(null);
+  };
+
+  const handleDiscard = async () => {
+    setFoodImageUrl(null);
+    setFoodInfo(null);
+    setSheetOpen(false);
   };
 
   if (!profile) {
@@ -272,8 +305,8 @@ export default function ScanPage() {
           foodInfo={foodInfo}
           type={profile?.user_type}
           foodImage={foodImageUrl ?? "/globe.svg"}
-          onDiscard={() => {}}
-          onSave={() => {}}
+          onDiscard={handleDiscard}
+          onSave={handleSave}
         />
       )}
     </div>

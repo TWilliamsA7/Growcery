@@ -120,7 +120,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     if (!userLoading && user) {
       fetchProfile();
     }
-  }, [userLoading]);
+  }, [userLoading, user]);
 
   const value = {
     profile,

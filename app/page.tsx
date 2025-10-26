@@ -33,7 +33,7 @@ export default function WelcomePage() {
       </p>
 
       {/* Buttons for Login/Signup */}
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-sm">
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-sm justify-center">
         <Button
           onClick={() => router.push("/signup")}
           className="grow bg-green-600 hover:bg-green-700 text-white text-lg py-6 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 font-semibold"

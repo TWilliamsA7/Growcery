@@ -94,7 +94,7 @@ export default function HomePage() {
             <h2 className="text-xl font-bold mb-4 text-red-600 dark:text-red-400 border-b pb-2">
               {isConsumer
                 ? "Expired Produce (Act Now)"
-                : "Past Harvests (Review)"}
+                : "Overdue Harvests (Review)"}
             </h2>
             {isConsumer ? (
               <ProduceTable expired className="my-1" />

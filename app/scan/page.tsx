@@ -272,6 +272,7 @@ export default function ScanPage() {
         });
 
         const result = await response.json();
+        console.log(result);
         setFoodInfo(result);
 
         if (!response.ok) {

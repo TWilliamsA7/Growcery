@@ -1,19 +1,8 @@
-// components/Logo.jsx
+// components/GrowceryLogo.tsx
 import Image from "next/image";
 
-/**
- * Reusable Logo component using next/image for optimization.
- *
- * @param {object} props - Component properties.
- * @param {string} [props.className=''] - Additional CSS classes for the container div.
- * @param {string} [props.size='md'] - Predefined size ('sm', 'md', 'lg', 'xl').
- * @param {number} [props.width] - Optional specific width (overrides size prop).
- * @param {number} [props.height] - Optional specific height (overrides size prop).
- * @param {string} [props.alt='App Logo'] - Alt text for accessibility.
- */
-
 interface LogoProps {
-  className: string;
+  className?: string;
   size?: string;
   width?: number;
   height?: number;
@@ -22,40 +11,32 @@ interface LogoProps {
 
 export default function GrowceryLogo({
   className = "",
-  size = "md",
-  width,
-  height,
+  width = 640, // Increased default width for a banner look
+  height = 160, // Custom height to give it a 4:1 wide ratio
   alt = "App Logo",
 }: LogoProps) {
-  // Define standard sizes based on the 'size' prop (mobile-first approach)
-  // These are tailwind-like size mappings. You can adjust these values.
-  const sizeMap: {
-    [key: string]: { w: number; h: number };
-  } = {
-    sm: { w: 64, h: 64 }, // Small (e.g., in a navbar)
-    md: { w: 96, h: 96 }, // Medium (e.g., in a sign-up form)
-    lg: { w: 128, h: 128 }, // Large (e.g., on a hero section)
-    xl: { w: 192, h: 192 }, // Extra Large
-    xxl: { w: 256, h: 256 },
-    xxxl: { w: 320, h: 320 },
-    xxxxl: { w: 384, h: 384 },
-  };
-
-  // Determine the final dimensions
-  const finalWidth = width || sizeMap[size]?.w || sizeMap.md.w;
-  const finalHeight = height || sizeMap[size]?.h || sizeMap.md.h;
+  // For a wide banner effect, we'll use 'fill' within a custom aspect ratio container.
+  // This will force the image to cover the rectangular space, eliminating the visual white space issue.
+  // If the source is square, it will be cropped/stretched, but it will be wide and bold.
 
   return (
-    <div className={`shrink-0 ${className}`}>
+    // Key Changes:
+    // 1. 'relative' and 'overflow-hidden' for 'fill'.
+    // 2. We are manually setting the width/height via the component props and letting the container take over.
+    // 3. We use custom tailwind classes for aspect ratio padding, which is the responsive way to set aspect ratio.
+    <div
+      style={{ width: `${width}px`, height: `${height}px` }}
+      className={`relative shrink-0 ${className} w-full max-w-full overflow-hidden`}
+    >
       <Image
-        src="/growcery_logo.png" // Path to the logo in the /public folder
+        src="/growcery_logo.png"
         alt={alt}
-        width={finalWidth}
-        height={finalHeight}
-        // Tailwind classes can be applied directly to the Image component
-        // or through the container div via the className prop.
-        className="object-contain"
-        priority={size === "md" || size === "sm"} // High priority for smaller logos above the fold
+        // Use 'fill' to make the image take up the entire container area
+        fill
+        // Use 'object-cover' to ensure the image covers the entire wide container.
+        // This will crop the top/bottom of the square image, making it wide.
+        className="object-cover"
+        priority={true}
       />
     </div>
   );

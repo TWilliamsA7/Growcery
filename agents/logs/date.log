@@ -2,11 +2,7 @@
   credential_service = InMemoryCredentialService()
 /Users/nataliacano/Programming/Growcery/venv/lib/python3.13/site-packages/google/adk/auth/credential_service/in_memory_credential_service.py:33: UserWarning: [EXPERIMENTAL] BaseCredentialService: This feature is experimental and may change or be removed in future versions without notice. It may introduce breaking changes at any time.
   super().__init__()
-INFO:     Started server process [16499]
+INFO:     Started server process [41915]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8006 (Press CTRL+C to quit)
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [16499]

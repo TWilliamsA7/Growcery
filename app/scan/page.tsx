@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Download } from "lucide-react";
+import { Camera, X, Download, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/contexts/profile-provider";
@@ -49,13 +49,6 @@ export default function ScanPage() {
     });
 
   useEffect(() => {
-    // Defensive: set CSS env vars in :root (helps older WebViews)
-    try {
-      // nothing heavy — using env(...) directly later is enough
-    } catch (e) {
-      // no-op
-    }
-
     let currentStream: MediaStream | null = null;
     const videoElement = videoRef.current;
 
@@ -64,10 +57,25 @@ export default function ScanPage() {
       videoElement.muted = true;
       videoElement.playsInline = true;
       videoElement.autoplay = true;
-      // avoid accidental text-selection or pause on touch
       videoElement.style.userSelect = "none";
       videoElement.style.touchAction = "manipulation";
     }
+
+    const decideMirrorFromTrack = (stream: MediaStream | null) => {
+      if (!stream) return false;
+      const track = stream.getVideoTracks()[0];
+      if (!track) return false;
+      const settings: any = track.getSettings?.() ?? {};
+      if (settings.facingMode) return settings.facingMode === "environment";
+      const label = (track.label || "").toLowerCase();
+      if (
+        label.includes("back") ||
+        label.includes("rear") ||
+        label.includes("environment")
+      )
+        return true;
+      return false;
+    };
 
     const startStream = async () => {
       try {
@@ -80,6 +88,10 @@ export default function ScanPage() {
 
         if (!videoRef.current) return;
         videoRef.current.srcObject = currentStream;
+
+        // decide whether to mirror by default (based on track settings/label)
+        const mirror = decideMirrorFromTrack(currentStream);
+        setIsMirrored(mirror);
 
         // Wait for metadata/canplay so videoWidth/videoHeight are available
         await new Promise<void>((resolve, reject) => {
@@ -103,7 +115,6 @@ export default function ScanPage() {
 
         // Play may still reject on some browsers if there wasn't a user gesture.
         await videoRef.current.play().catch((err) => {
-          // If autoplay blocked, require explicit tap to start
           console.warn(
             "video.play() rejected — will require user gesture:",
             err
@@ -152,7 +163,18 @@ export default function ScanPage() {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
         streamRef.current = stream;
-        const mirror = decideMirrorFromTrack(stream);
+        // update mirror state based on stream
+        const track = stream.getVideoTracks()[0];
+        const settings: any = track.getSettings?.() ?? {};
+        let mirror = false;
+        if (settings.facingMode) mirror = settings.facingMode === "environment";
+        else {
+          const label = (track.label || "").toLowerCase();
+          mirror =
+            label.includes("back") ||
+            label.includes("rear") ||
+            label.includes("environment");
+        }
         setIsMirrored(mirror);
         setIsCameraActive(true);
         setNeedUserGestureToStart(false);
@@ -229,10 +251,12 @@ export default function ScanPage() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        // Mirror reversal (for front camera) — but if environment/back camera is used,
-        // this will still produce the expected orientation for scanning.
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        if (mirrored) {
+          ctx.scale(-1, 1);
+          ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        } else {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
 
         const imageURL = canvas.toDataURL("image/png");
         setFoodImageUrl(imageURL);
@@ -304,25 +328,33 @@ export default function ScanPage() {
   if (!profile) return null;
 
   return (
+    // Lock the page to viewport so Safari / address bar won't push content
     <div
-      className="min-h-screen w-screen flex flex-col p-0 bg-black text-white overflow-hidden"
-      // Ensure we keep content above iOS bottom home indicator using CSS env()
+      className="fixed inset-0 flex flex-col p-0 bg-black text-white"
       style={{
-        // add a little padding to bottom so the fixed UI isn't obscured
-        paddingBottom: "env(safe-area-inset-bottom)",
+        // Keep controls above notches and the home indicator
         paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        overscrollBehavior: "none",
       }}
     >
-      {/* Top bar — also respects safe top inset */}
+      {/* Top bar — keep in normal flow */}
       <div
-        className="flex justify-between items-center p-4 bg-zinc-900 z-10 shrink-0"
+        className="flex justify-between items-center p-4 bg-zinc-900 z-20"
         style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}
       >
         <h1 className="text-xl font-bold">Camera</h1>
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.back()}
+          onClick={() => {
+            // stop camera before leaving
+            if (streamRef.current) {
+              streamRef.current.getTracks().forEach((t) => t.stop());
+              streamRef.current = null;
+            }
+            router.back();
+          }}
           className="text-white hover:bg-zinc-700"
         >
           <X className="h-6 w-6" />
@@ -330,10 +362,10 @@ export default function ScanPage() {
         </Button>
       </div>
 
-      {/* Camera area */}
-      <div className="relative grow flex items-center justify-center overflow-hidden bg-black">
+      {/* Camera area: grow to fill remaining space */}
+      <div className="relative flex-1 flex items-center justify-center overflow-hidden bg-black">
         {error ? (
-          <p className="text-red-400 p-8 text-center text-lg">{error}</p>
+          <p className="text-red-400 p-8 text-center text-lg z-10">{error}</p>
         ) : (
           <>
             {!isCameraActive && (
@@ -348,7 +380,7 @@ export default function ScanPage() {
               autoPlay
               playsInline
               muted
-              className={`absolute w-full h-full object-cover transform ${
+              className={`absolute inset-0 w-full h-full object-cover transform ${
                 mirrored ? "scale-x-[-1]" : ""
               }`}
               style={{ objectPosition: "center" }}
@@ -356,7 +388,7 @@ export default function ScanPage() {
 
             {/* If autoplay blocked and user gesture needed, show a big tap button */}
             {needUserGestureToStart && (
-              <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="absolute inset-0 flex items-center justify-center z-30">
                 <button
                   onClick={startCamera}
                   className="bg-orange-600 text-white px-6 py-3 rounded-xl shadow-lg"
@@ -369,35 +401,56 @@ export default function ScanPage() {
         )}
       </div>
 
-      {/* Bottom controls — make sure it floats above the safe area */}
+      {/* Floating controls (fixed) so they always sit above the home indicator */}
+      {/* Mirror toggle (left) + capture button (center) */}
       <div
-        className="flex justify-center items-center p-4 bg-zinc-900 z-10 shrink-0"
-        style={{
-          // ensure we have extra padding so the Safari home indicator doesn't cover the controls
-          paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
-        }}
+        aria-hidden
+        className="pointer-events-none"
+        // container for fixed buttons; pointer-events-none lets inner buttons accept events only
       >
-        <Button
-          onClick={handleCapture}
-          disabled={!isCameraActive || isCapturing}
-          className={cn(
-            "bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.98] transition-all",
-            "h-16 w-16 rounded-full p-0 flex items-center justify-center shadow-2xl shadow-orange-500/60"
-          )}
+        <div
           style={{
-            // also nudge the button up visually so it's clearly above home indicator
-            marginBottom: "env(safe-area-inset-bottom)",
+            position: "fixed",
+            left: "50%",
+            bottom: "calc(env(safe-area-inset-bottom) + 18px)",
+            transform: "translateX(-50%)",
+            zIndex: 40,
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            pointerEvents: "auto", // allow buttons inside to be clickable
           }}
         >
-          {isCapturing ? (
-            <Download className="h-6 w-6 animate-pulse" />
-          ) : (
-            <Camera className="h-8 w-8" />
-          )}
-          <span className="sr-only">Take Photo</span>
-        </Button>
+          {/* Mirror toggle */}
+          <Button
+            onClick={() => setIsMirrored((m) => !m)}
+            variant="ghost"
+            className="text-white hover:bg-zinc-800 w-12 h-12 flex items-center justify-center rounded-full"
+            title="Toggle mirror"
+          >
+            <RefreshCw className={`h-5 w-5 ${mirrored ? "rotate-180" : ""}`} />
+          </Button>
+
+          {/* Capture button */}
+          <Button
+            onClick={handleCapture}
+            disabled={!isCameraActive || isCapturing}
+            className={cn(
+              "bg-orange-600 text-white hover:bg-orange-700 active:scale-[0.98] transition-all",
+              "h-16 w-16 rounded-full p-0 flex items-center justify-center shadow-2xl shadow-orange-500/60"
+            )}
+            aria-label="Take Photo"
+          >
+            {isCapturing ? (
+              <Download className="h-6 w-6 animate-pulse" />
+            ) : (
+              <Camera className="h-8 w-8" />
+            )}
+          </Button>
+        </div>
       </div>
 
+      {/* loader and sheet */}
       <CarrotLoader isActive={isCapturing} />
 
       {foodInfo && (

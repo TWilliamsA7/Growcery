@@ -139,3 +139,29 @@
 .animate-rotate-wait {
   animation: full-rotate-pause 2s linear infinite;
 }
+
+/* globals.css */
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* Utility class you can reuse */
+.safe-bottom-padding {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* If shadcn/ui's SheetContent is rendered in a portal, target its class.
+   Inspect your DOM to confirm the generated class name (or add a wrapper class).
+*/
+.shadcn-sheet-content,
+.sheet-content {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* Make video and touch elements less likely to be paused on accidental touches */
+video {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}

@@ -53,7 +53,8 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
       const { data, error } = await supabase
         .from("produce")
         .select("produce_id, name, bought_at, expires_at, cover_image")
-        .eq("owner_id", user.id);
+        .eq("owner_id", user.id)
+        .order("expires_at", { ascending: false });
 
       if (error) throw error;
 
@@ -119,7 +120,7 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
   };
 
   useEffect(() => {
-    if (!userLoading) {
+    if (!userLoading && user) {
       fetchProduce();
     }
   }, [userLoading]);

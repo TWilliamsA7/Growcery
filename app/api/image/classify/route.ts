@@ -141,9 +141,15 @@ export async function POST(request: Request) {
       ],
     });
 
-    return NextResponse.json(parseProduceData(geminiRes.text ?? ""), {
-      status: 200,
-    });
+    return NextResponse.json(
+      {
+        ...parseProduceData(geminiRes.text ?? ""),
+        confidence: externalData.confidence_percent ?? 74,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.error("Error forwarding request:", error);
     return NextResponse.json(

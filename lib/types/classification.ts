@@ -5,4 +5,5 @@ export interface GeminiResponse {
   storageInstructions: string;
   expirationDate: string;
   sensoryCharacteristics: string;
+  confidence: number;
 }

@@ -113,6 +113,13 @@ export function FoodInfoSheet({
             />
           </div>
 
+          <div>
+            <Label htmlFor="confidence">AI Confidence</Label>
+            <p id="confidence" className="text-sm">
+              {foodInfo.confidence || "—"}
+            </p>
+          </div>
+
           {/* Info fields */}
           <div className="space-y-3 px-1">
             <div>

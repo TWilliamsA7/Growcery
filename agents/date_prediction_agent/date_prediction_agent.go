@@ -3,6 +3,7 @@ package main
 import (
     "encoding/json"
     "fmt"
+    "os"
     "net/http"
 )
 
@@ -20,6 +21,15 @@ type RPCResponse struct {
     Error   interface{} `json:"error,omitempty"`
 }
 
+type DatePrediction struct {
+    Farmer   string `json:"farmer"`
+    Consumer string `json:"consumer"`
+}
+
+type Prompts struct {
+    DatePrediction DatePrediction `json:"date_prediction"`
+}
+
 func datePredictionHandler(w http.ResponseWriter, r *http.Request) {
     var req RPCRequest
 
@@ -31,12 +41,21 @@ func datePredictionHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    file, err := os.Open("../prompts.json")
+    if err != nil {
+        panic(err)
+    }
+    defer file.Close()
+
+    var prompts Prompts
+    json.NewDecoder(file).Decode(&prompts)
+
     fmt.Println("Received method:", req.Method)
 
     // Handle the method
     switch req.Method {
         case "farmer":
-            prompt := fmt.Sprintf("%s %s %s", req.Params["location"], req.Params["name"], req.Params["attributes"]) // location, crop name, attributes
+            prompt := fmt.Sprintf(prompts.DatePrediction.Farmer, req.Params["location"], req.Params["name"], req.Params["attributes"]) // location, crop name, attributes
             response := RPCResponse{
                 JSONRPC: "2.0",
                 ID:      req.ID,
@@ -45,6 +64,13 @@ func datePredictionHandler(w http.ResponseWriter, r *http.Request) {
             json.NewEncoder(w).Encode(response)
 
         case "consumer":
+            prompt := fmt.Sprintf(prompts.DatePrediction.Consumer, req.Params["location"], req.Params["name"], req.Params["attributes"]) // location, produce name, attributes
+            response := RPCResponse{
+                JSONRPC: "2.0",
+                ID:      req.ID,
+                Result:  prompt,
+            }
+            json.NewEncoder(w).Encode(response)
     }
 
     // Unknown method fallback

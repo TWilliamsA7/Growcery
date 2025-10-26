@@ -1,6 +1,7 @@
 // app/page.tsx
 "use client";
 
+import CarrotLoader from "@/components/CarrotLoader";
 import { CropTable } from "@/components/CropTable";
 import GrowceryLogo from "@/components/GrowceryLogo";
 import LogOutButton from "@/components/LogOutButton";
@@ -11,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function HomePage() {
-  const { profile } = useProfile();
+  const { profile, isLoading: profileLoading } = useProfile();
   const router = useRouter();
   const [displayLimit, setDisplayLimit] = useState<number | undefined>(5);
 
@@ -110,6 +111,8 @@ export default function HomePage() {
             </MobileButton>
           </div>
         </section>
+
+        <CarrotLoader isActive={!!profileLoading} />
       </main>
 
       {/* 🔽 FOOTER: Consistent for persistent actions */}

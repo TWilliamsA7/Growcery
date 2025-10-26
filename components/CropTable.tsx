@@ -22,7 +22,7 @@ interface CropTableProps {
 }
 
 export function CropTable({ past_harvest, limit, className }: CropTableProps) {
-  const { crops, deleteCrop, addCrop } = useCrop();
+  const { crops, deleteCrop, addCrop, isLoading: cropLoading } = useCrop();
   const [displayCrops, setDisplayCrops] = useState<Crop[]>([]);
   const [lastDeletedCrop, setLastDeletedCrop] = useState<Crop | null>(null);
   const [sort, setSort] = useState<"name" | "expDate" | "purDate" | null>(null);
@@ -75,7 +75,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
     } else {
       setDisplayCrops(sortedCrops);
     }
-  }, [sort, ascending, past_harvest, limit, crops]);
+  }, [sort, ascending, past_harvest, limit, crops, cropLoading]);
 
   const toggleSort = (sortTag: "name" | "expDate" | "purDate") => {
     if (sortTag == sort) {

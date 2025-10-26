@@ -14,6 +14,7 @@ import { Crop, useCrop } from "@/contexts/crops-provider";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { knownIcons } from "./icons";
 
 interface CropTableProps {
   className?: string;
@@ -206,29 +207,43 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {displayCrops.map((c) => (
-          <TableRow key={c.crop_id}>
-            <TableCell>
-              <img
-                className="h-4 w-4"
-                src={c.cover_image ?? "/food-placeholder.svg"}
-                alt={c.name}
-              />
-            </TableCell>
-            <TableCell className="font-medium">{c.name}</TableCell>
-            <TableCell>
-              {c.scanned_at ? new Date(c.scanned_at).toLocaleDateString() : "-"}
-            </TableCell>
-            <TableCell>
-              {c.harvest_at ? new Date(c.harvest_at).toLocaleDateString() : "-"}
-            </TableCell>
-            <TableCell>
-              <button onClick={() => handleDelete(c.crop_id)}>
-                <X className="w-8 h-8" />
-              </button>
-            </TableCell>
-          </TableRow>
-        ))}
+        {displayCrops.map((c) => {
+          let src: string = "/food-placeholder.svg";
+
+          if (
+            knownIcons.includes(c.name.toLowerCase().trim().replace(" ", ""))
+          ) {
+            src = `/icons/${c.name.toLowerCase().trim().replace(" ", "")}.png`;
+          }
+
+          return (
+            <TableRow key={c.crop_id}>
+              <TableCell>
+                <img
+                  className="h-4 w-4"
+                  src={c.cover_image ?? src}
+                  alt={c.name}
+                />
+              </TableCell>
+              <TableCell className="font-medium">{c.name}</TableCell>
+              <TableCell>
+                {c.scanned_at
+                  ? new Date(c.scanned_at).toLocaleDateString()
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                {c.harvest_at
+                  ? new Date(c.harvest_at).toLocaleDateString()
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                <button onClick={() => handleDelete(c.crop_id)}>
+                  <X className="w-8 h-8" />
+                </button>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

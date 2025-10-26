@@ -2,19 +2,24 @@
 "use client";
 
 import CarrotLoader from "@/components/CarrotLoader";
+import ChangeRolesButton from "@/components/ChangeRolesButton";
 import { CropTable } from "@/components/CropTable";
 import GrowceryLogo from "@/components/GrowceryLogo";
 import LogOutButton from "@/components/LogOutButton";
 import MobileButton from "@/components/MobileButton";
 import { ProduceTable } from "@/components/ProduceTable";
+import { SelectRoleModal } from "@/components/SelectRoleModal";
+import { Button } from "@/components/ui/button";
 import { useProfile } from "@/contexts/profile-provider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function HomePage() {
   const { profile, isLoading: profileLoading } = useProfile();
   const router = useRouter();
   const [displayLimit, setDisplayLimit] = useState<number | undefined>(5);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState<boolean>(false);
 
   function getTimeBasedGreeting(): string {
     const now = new Date();
@@ -29,6 +34,16 @@ export default function HomePage() {
       return `Good evening ${profile.first_name}!`;
     }
   }
+
+  const handleModalClose = (open: Boolean) => {
+    if (open === false) {
+      toast("Thank you for your choice", {
+        description: "It can be changed at any point later on",
+      });
+
+      setIsRoleModalOpen(false);
+    }
+  };
 
   const isConsumer = profile?.user_type === "consumer";
   const greetingText = getTimeBasedGreeting();
@@ -113,13 +128,26 @@ export default function HomePage() {
         </section>
 
         <CarrotLoader isActive={!!profileLoading} />
+        <SelectRoleModal
+          title="Change Roles"
+          description="Update what role you find yourself in!"
+          openDefault={false}
+          open={isRoleModalOpen}
+          onOpenChange={handleModalClose}
+        />
       </main>
 
       {/* 🔽 FOOTER: Consistent for persistent actions */}
       <footer
         className="w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 
-        flex justify-end items-center space-x-4"
+        flex justify-end items-center space-x-4 flex-col"
       >
+        {/* Activate change roles button */}
+        <ChangeRolesButton
+          onClick={() => setIsRoleModalOpen(true)}
+          className="text-lg font-medium text-white bg-orange-300 hover:bg-orange-500 transition duration-150"
+        />
+
         {/* Log Out Button */}
         <LogOutButton className="text-lg font-medium text-white hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition duration-150" />
       </footer>

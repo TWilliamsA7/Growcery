@@ -66,15 +66,6 @@ Can be found at: https://growcery-three.vercel.app/
 - **Inference:** ONNX-compatible PyTorch pipeline  
 - **Reasoning:** Gemini 2.5 Flash API calls via TypeScript  
 
----  
-
-
----
-
-## 📘 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
 ---
 
 ## 💡 Team

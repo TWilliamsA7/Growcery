@@ -1,7 +1,7 @@
 import os
 import requests
 
-GEMINI_API_KEY = os.getenv("AIzaSyABs7eYV-knan701Tyz27YxLLZfoiJ8enE")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 
 def call_gemini(prompt: str, image: str = None) -> str:

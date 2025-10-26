@@ -55,8 +55,8 @@ export function FoodInfoSheet({
           <Image
             src={foodImage}
             alt={"Image of food"}
-            width={250}
-            height={250}
+            width={400}
+            height={400}
             className="object-cover"
             priority
           />

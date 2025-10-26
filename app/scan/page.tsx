@@ -11,6 +11,7 @@ import CarrotLoader from "@/components/CarrotLoader";
 import { GeminiResponse } from "@/lib/types/classification";
 import { Produce, useProduce } from "@/contexts/produce-provider";
 import { Crop, useCrop } from "@/contexts/crops-provider";
+import { toast } from "sonner";
 
 export default function ScanPage() {
   const router = useRouter();
@@ -219,6 +220,10 @@ export default function ScanPage() {
 
       await addCrop(newCrop);
     }
+
+    toast("Save Successful", {
+      description: "Your Food Item has been successfully saved!",
+    });
 
     setSheetOpen(false);
     setFoodImageUrl(null);

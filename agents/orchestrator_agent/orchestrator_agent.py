@@ -41,12 +41,12 @@ def orchestrator_rpc():
         data.location = params.location
 
         # classification agent
-        data.name = call_agent("http://localhost:8001/rpc", params.type, params) # CHANGE PORT LATER
+        data.name = call_agent("http://localhost:8001/rpc", params.type, params)
 
         params.name = data.name
 
         # attribute agent
-        data.attributes = call_agent("http://localhost:8002/rpc", params.type, params) # how to include name in the params?
+        data.attributes = call_agent("http://localhost:8002/rpc", params.type, params)
 
         params.attributes = data.attributes
     
@@ -59,15 +59,8 @@ def orchestrator_rpc():
         if (data.health == "Diseased"):
             data.treatment = call_agent("http://localhost:8005/rpc", params.type, data)
 
-        params = {
-            "name": data.name,
-            "location": data.location,
-            "attributes": data.attributes,
-            "prompt": PROMPT_FILE_PATH.date_prediction[data.user_type]
-        }
-
         # expiration/harvest date agent
-        data.date = call_agent("http://localhost:8006/rpc", data.user_type, data) # CHANGE PORT LATER 
+        data.date = call_agent("http://localhost:8006/rpc", data.user_type, data)
 
         data.physical_qualities = call_agent("http://localhost:8007/rpc", data.user_type, data)
 

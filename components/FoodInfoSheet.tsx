@@ -107,6 +107,9 @@ export function FoodInfoSheet({
           <p id="physAttr">{foodInfo.physical_qualities}</p>
         </div>
 
+        <p className="text-center text-sm text-primary/90">
+          *Expirations dates are based on recommended storage practices
+        </p>
         <SheetFooter className="flex flex-row justify-center gap-2 p-4 pt-0">
           <Button
             onClick={onDiscard}

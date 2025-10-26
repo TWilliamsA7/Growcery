@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { GoogleGenAI } from "@google/genai";
 
+const GEMINI_API_KEY: string = process.env.GEMINI_API_KEY!;
 const AMD_CLASSIFIER_ENDPOINT: string = process.env.AMD_CLASSIFIER_ENDPOINT!;
 const GEMINI_END_POINT: string = process.env.GEMINI_END_POINT!;
 
@@ -44,39 +46,50 @@ export async function POST(request: Request) {
 
     // 5. Success
     const externalData = await response.json();
-    const formData = new FormData();
+    // const formData = new FormData();
 
-    if (file) {
-      formData.append("file", file, file.name); // The binary file
-    }
-    formData.append("type", custType);
-    formData.append("location", "Florida, United States");
+    // if (file) {
+    //   formData.append("file", file, file.name); // The binary file
+    // }
+    // formData.append("type", custType);
+    // formData.append("location", "Florida, United States");
 
-    // 3. ✨ Append the externalData fields using a loop (the efficient way)
-    for (const key in externalData) {
-      if (Object.prototype.hasOwnProperty.call(externalData, key)) {
-        // Ensure the value is converted to a string if it's not already
-        formData.append(key, String(externalData[key]));
-      }
-    }
+    // // 3. ✨ Append the externalData fields using a loop (the efficient way)
+    // for (const key in externalData) {
+    //   if (Object.prototype.hasOwnProperty.call(externalData, key)) {
+    //     // Ensure the value is converted to a string if it's not already
+    //     formData.append(key, String(externalData[key]));
+    //   }
+    // }
 
-    const geminiRes = await fetch("/api/image/response", {
-      method: "POST",
-      body: formData,
+    // const geminiRes = await fetch("/api/image/response", {
+    //   method: "POST",
+    //   body: formData,
+    // });
+
+    // if (!geminiRes.ok) {
+    //   const errorBody = await geminiRes.text();
+    //   console.error("External API failed:", errorBody);
+    //   return NextResponse.json(
+    //     { message: "External API call failed", details: errorBody },
+    //     { status: geminiRes.status }
+    //   );
+    // }
+
+    // const foodData = await geminiRes.json();
+
+    // return NextResponse.json(foodData, { status: 200 });
+
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+    const geminiRes = await ai.models.generateContent({
+      model: "gemini-2.0-flash-001",
+      contents: "Why is the sky blue?",
     });
 
-    if (!geminiRes.ok) {
-      const errorBody = await geminiRes.text();
-      console.error("External API failed:", errorBody);
-      return NextResponse.json(
-        { message: "External API call failed", details: errorBody },
-        { status: geminiRes.status }
-      );
-    }
+    console.log(geminiRes.text);
 
-    const foodData = await geminiRes.json();
-
-    return NextResponse.json(foodData, { status: 200 });
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     console.error("Error forwarding request:", error);
     return NextResponse.json(

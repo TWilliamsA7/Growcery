@@ -3,6 +3,7 @@
 Growcery uses **AI and computer vision** to analyze images of crops and produce.  
 With a single photo, users can instantly learn about **freshness, quality, or possible diseases**, along with **treatment advice** or **storage recommendations** — all accelerated by **AMD ROCm GPUs**.
 
+Can be found at: https://growcery-three.vercel.app/
 ---
 
 ## 🚀 What It Does
@@ -58,81 +59,6 @@ With a single photo, users can instantly learn about **freshness, quality, or po
 
 ---
 
-## 🧰 Setup
-
-### 1️⃣ Backend Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/growcery.git
-cd growcery/backend
-
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2️⃣ Frontend Setup
-
-```bash
-cd ../frontend
-npm install
-npm run dev
-```
-
-### 3️⃣ Environment Variables
-
-Create a `.env` file in both `backend/` and `frontend/`:
-
-#### backend/.env
-```
-GEMINI_API_KEY=your_google_genai_key
-ROCM_VISIBLE_DEVICES=0
-```
-
-#### frontend/.env
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
----
-
-## 🧬 Example JSON Flow
-
-```json
-{
-  "image": "base64encodedimage",
-  "predictions": {
-    "Tomato__Healthy": 0.06,
-    "Tomato__Early_Blight": 0.91,
-    "Tomato__Late_Blight": 0.03
-  },
-  "latency_ms": 128,
-  "gemini_reasoning": "The plant shows early signs of blight. Remove affected leaves and apply a copper-based fungicide."
-}
-```
-
----
-
-## 🧪 Running Locally
-
-```bash
-# Start backend
-cd backend
-uvicorn main:app --reload
-
-# Start frontend
-cd ../frontend
-npm run dev
-```
-
-Then open [http://localhost:3000](http://localhost:3000)
-
----
-
 ## 🌩️ Deployment
 
 - **Backend:** Deployed on AMD ROCm 7.0 cloud instance  
@@ -140,23 +66,8 @@ Then open [http://localhost:3000](http://localhost:3000)
 - **Inference:** ONNX-compatible PyTorch pipeline  
 - **Reasoning:** Gemini 2.5 Flash API calls via TypeScript  
 
----
+---  
 
-## 🧠 Challenges We Overcame
-
-- Porting TensorFlow/Keras models to PyTorch for ROCm compatibility  
-- Building real-time reasoning with Gemini 2.5 Flash  
-- Managing cross-language integration between Python and TypeScript  
-- Optimizing GPU throughput and inference latency on ROCm cloud servers  
-
----
-
-## 🏆 Accomplishments
-
-- Achieved **>99% accuracy** on produce freshness classification  
-- End-to-end **inference + reasoning latency <200 ms**  
-- Fully working **AMD-accelerated AI stack** (PyTorch + Gemini 2.5 Flash)  
-- Built a complete **AI system for both agriculture and retail use**
 
 ---
 
@@ -168,14 +79,15 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ## 💡 Team
 
-**Growcery** was developed during the **[Hackathon Name]** by:  
-- **Alexander Nardi** — AI Systems Lead  
-- **[Add teammates here]**
+**Growcery** was developed during the **KnightHacks Hackathon** by:  
+- **Alexander Nardi** 
+- **Natalia Cano**
+- **Tai Williams**
+- **Ray Arcand**
 
 ---
 
 ## 🌍 Links
 
-- 🌐 [Devpost Submission](#)
-- 💻 [GitHub Repository](https://github.com/yourusername/growcery)
+- 🌐 [Devpost Submission](https://devpost.com/software/growcery)
 - 🧠 Powered by **Google Gemini 2.5 Flash** & **AMD ROCm 7.0**

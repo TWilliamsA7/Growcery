@@ -21,9 +21,6 @@ export const metadata: Metadata = {
   title: "Growcery",
   description:
     "A full-stack AI Agent and Acceleration powered application used to better enhance produce shopping and growth!",
-  icons: {
-    icon: "/growcery_favicon_trans.png",
-  },
 };
 
 export default function RootLayout({

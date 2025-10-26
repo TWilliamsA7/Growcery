@@ -1,0 +1,46 @@
+{
+    "id": "000-000-000",
+    "jsonrpc": "2.0",
+    "method": "orchestrate",
+    "params": {
+        "image": "image",
+        "type": "farmer",
+        "location": "State/Providence, Country",
+        "inference": {
+          "predictions": {
+            "Apple__Healthy": 3.0789869924774393e-06,
+            "Apple__Rotten": 3.2639461551298155e-06,
+            "Banana__Healthy": 0.00014985578309278935,
+            "Banana__Rotten": 0.012875503860414028,
+            "Bellpepper__Healthy": 9.016897092806175e-05,
+            "Bellpepper__Rotten": 0.0005578681593760848,
+            "Carrot__Healthy": 0.00255463644862175,
+            "Carrot__Rotten": 0.0017413325840607285,
+            "Cucumber__Healthy": 0.6669753789901733,
+            "Cucumber__Rotten": 0.0979243740439415,
+            "Grape__Healthy": 5.917450835113414e-06,
+            "Grape__Rotten": 1.2500521506808582e-07,
+            "Guava__Healthy": 0.0001201611667056568,
+            "Guava__Rotten": 5.831629096064717e-06,
+            "Jujube__Healthy": 2.5446340146118018e-08,
+            "Jujube__Rotten": 1.5366903483027272e-07,
+            "Mango__Healthy": 1.382054961140966e-06,
+            "Mango__Rotten": 0.21670109033584595,
+            "Orange__Healthy": 6.014211635374522e-07,
+            "Orange__Rotten": 1.2868226804130245e-05,
+            "Pomegranate__Healthy": 1.9754436380026164e-06,
+            "Pomegranate__Rotten": 5.8230590127550386e-08,
+            "Potato__Healthy": 6.365870035551779e-07,
+            "Potato__Rotten": 0.00011565477325348184,
+            "Strawberry__Healthy": 8.760864034229598e-07,
+            "Strawberry__Rotten": 0.00015556951984763145,
+            "Tomato__Healthy": 1.4887502857163781e-06,
+            "Tomato__Rotten": 9.24482677078231e-08
+          },
+          "top_class": "Cucumber__Healthy",
+          "confidence": 0.6669753789901733,
+          "latency_ms": 3.77
+        }
+      
+    }
+  }

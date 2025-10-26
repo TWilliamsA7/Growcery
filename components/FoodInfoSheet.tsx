@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { GeminiResponse } from "@/lib/types/classification";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Pencil } from "lucide-react";
@@ -38,76 +38,155 @@ export function FoodInfoSheet({
   onSave,
   onDiscard,
 }: FoodInfoSheetProps) {
+  // ensure controlled derived initial state when the sheet opens/changes foodInfo
   const [foodName, setFoodName] = useState<string>(
-    foodInfo.produce_name || foodInfo.crop_name
+    foodInfo?.produce_name || foodInfo?.crop_name || ""
   );
+
+  // Keep foodName in sync when foodInfo prop changes (e.g., new scan)
+  useEffect(() => {
+    setFoodName(foodInfo?.produce_name || foodInfo?.crop_name || "");
+  }, [foodInfo]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="mx-1 rounded-md h-9/10">
-        <SheetHeader>
+      {/* 
+        - h-[90vh] keeps sheet tall but leaves room for the status bar/home indicator.
+        - rounded-t-2xl gives a nice mobile sheet look.
+        - style adds safe-area padding to the whole sheet content and lets inner parts scroll.
+      */}
+      <SheetContent
+        side="bottom"
+        className="mx-1 rounded-t-2xl h-[90vh] max-h-[92vh] p-0"
+        style={{
+          // ensure content & footer are offset from mobile home indicator + top notch
+          paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
+          paddingTop: "env(safe-area-inset-top)",
+        }}
+      >
+        {/* Grabber */}
+        <div className="w-full flex justify-center pt-3 pb-1">
+          <div
+            className="w-14 h-1.5 rounded-full bg-zinc-300/40"
+            aria-hidden
+            style={{ opacity: 0.9 }}
+          />
+        </div>
+
+        <SheetHeader className="px-4 pb-2">
           <SheetTitle className="text-xl">Produce Information</SheetTitle>
-          <SheetDescription>
-            View information about scanned produce and choose whether keep it or
-            not!
+          <SheetDescription className="text-sm">
+            View information about scanned produce and choose whether to keep it
+            or not.
           </SheetDescription>
         </SheetHeader>
-        <div className="grid justify-center flex-1 auto-rows-min gap-6 px-4">
-          <Image
-            src={foodImage}
-            alt={"Image of food"}
-            width={350}
-            height={350}
-            className="object-cover"
-            priority
-          />
+
+        {/* Scrollable content area */}
+        <div
+          className="px-4 overflow-auto flex-1 flex flex-col gap-4"
+          // give it a sensible scrollable height (content area)
+          style={{ minHeight: 0 }}
+        >
+          {/* Image */}
+          <div className="w-full flex justify-center">
+            {/* Responsive square: small = 160px, sm = 200px, md = 256px */}
+            <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-md overflow-hidden bg-gray-100">
+              <Image
+                src={foodImage}
+                alt="Image of food"
+                fill
+                sizes="(max-width: 640px) 160px, (max-width: 1024px) 200px, 256px"
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Editable name row */}
+          <div className="flex items-center gap-2 px-1">
+            <Pencil className="h-5 w-5 text-zinc-700" />
+            <Input
+              className="w-full bg-transparent border-none focus:ring-0 p-0 text-xl font-semibold text-gray-900 placeholder:text-gray-500"
+              value={foodName}
+              onChange={(e) => setFoodName(e.target.value)}
+              aria-label="Food name"
+            />
+          </div>
+
+          {/* Info fields */}
+          <div className="space-y-3 px-1">
+            <div>
+              <Label htmlFor="health">Health</Label>
+              <p id="health" className="text-sm">
+                {foodInfo.health || "—"}
+              </p>
+            </div>
+
+            {type === "consumer" ? (
+              <div>
+                <Label htmlFor="expDate">Expiration Date</Label>
+                <p id="expDate" className="text-sm">
+                  {foodInfo.expiration_date || "—"}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="harDate">Harvest Date</Label>
+                <p id="harDate" className="text-sm">
+                  {foodInfo.harvest_date || "—"}
+                </p>
+              </div>
+            )}
+
+            {type === "farmer" ? (
+              <>
+                <div>
+                  <Label htmlFor="disease">Disease</Label>
+                  <p id="disease" className="text-sm">
+                    {foodInfo.disease || "—"}
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="treatment">Treatment</Label>
+                  <p id="treatment" className="text-sm">
+                    {foodInfo.treatment || "—"}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div>
+                <Label htmlFor="storage">Recommended Storage Method</Label>
+                <p id="storage" className="text-sm">
+                  {foodInfo.storage_method || "—"}
+                </p>
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="attr">Attributes</Label>
+              <p id="attr" className="text-sm">
+                {foodInfo.attributes || "—"}
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="physAttr">Physical Qualities</Label>
+              <p id="physAttr" className="text-sm">
+                {foodInfo.physical_qualities || "—"}
+              </p>
+            </div>
+
+            <p className="text-center text-xs text-primary/90">
+              *Expiration dates are based on recommended storage practices
+            </p>
+          </div>
         </div>
-        <div className="flex flex-row justify-center align-middle">
-          <Pencil className="h-4 w-4" />
-          <Input
-            className="w-7/8 mx-2bg-transparent border-none focus:outline-none p-0 text-xl font-semibold text-gray-900 placeholder:text-gray-500"
-            value={foodName}
-            autoFocus={false}
-            onChange={(e) => setFoodName(e.target.value)}
-          />
-        </div>
 
-        <div className="w-full mx-2">
-          <Label htmlFor="health">Health</Label>
-          <p id="health">{foodInfo.health}</p>
-          {type === "consumer" ? (
-            <>
-              <Label htmlFor="expDate">Expiration Date</Label>
-              <p id="expDate">{foodInfo.expiration_date}</p>
-            </>
-          ) : (
-            <>
-              <Label htmlFor="harDate">Harvest Date</Label>
-              <p id="harDate">{foodInfo.harvest_date}</p>
-            </>
-          )}
-
-          {type === "farmer" ? (
-            <>
-              <Label htmlFor="disease">Disease</Label>
-              <p id="disease">{foodInfo.disease}</p>
-              <Label htmlFor="treatment">Treatment</Label>
-              <p id="treatment">{foodInfo.treatment}</p>
-            </>
-          ) : (
-            <>
-              <Label htmlFor="storage">Recommended Storage Method</Label>
-              <p id="storage">{foodInfo.storage_method}</p>
-            </>
-          )}
-
-          <Label htmlFor="attr">Attributes</Label>
-          <p id="attr">{foodInfo.attributes}</p>
-          <Label htmlFor="physAttr">Physical Qualities</Label>
-          <p id="physAttr">{foodInfo.physical_qualities}</p>
-        </div>
-
-        <SheetFooter className="flex flex-row justify-center gap-2 p-4 pt-0">
+        {/* Footer — keep it visually above safe area with extra padding */}
+        <SheetFooter
+          className="flex flex-row justify-center gap-2 p-4 pt-3"
+          style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
           <Button
             onClick={onDiscard}
             className="bg-red-500 text-white hover:bg-red-700 w-auto shadow-md"

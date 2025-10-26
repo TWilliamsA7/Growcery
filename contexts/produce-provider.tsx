@@ -120,7 +120,7 @@ export function ProduceProvider({ children }: ProduceProviderProps) {
   };
 
   useEffect(() => {
-    if (!userLoading) {
+    if (!userLoading && user) {
       fetchProduce();
     }
   }, [userLoading]);

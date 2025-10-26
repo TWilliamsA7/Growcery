@@ -119,7 +119,7 @@ export function CropProvider({ children }: CropProviderProps) {
   };
 
   useEffect(() => {
-    if (!userLoading) {
+    if (!userLoading && user) {
       fetchCrops();
     }
   }, [userLoading]);

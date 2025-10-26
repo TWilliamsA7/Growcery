@@ -117,7 +117,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
   };
 
   useEffect(() => {
-    if (!userLoading) {
+    if (!userLoading && user) {
       fetchProfile();
     }
   }, [userLoading]);

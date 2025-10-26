@@ -38,8 +38,8 @@ Can be found at: https://growcery-three.vercel.app/
 
 | Model | Framework | Purpose | Notes |
 |-------|------------|----------|-------|
-| MobileNetV3 | PyTorch | Fast classification of produce images | Optimized for ROCm |
-| EfficientNetV2 | PyTorch | High-accuracy disease detection | Used for crops and leaves |
+| EfficientNetV2 | PyTorch | Fast classification of produce images | Optimized with ROCm |
+| MobileNetV3 | PyTorch | High-accuracy disease detection on crops | Used for crops and leaves | Optimized with ROCm |
 | Gemini 2.5 Flash | Google GenAI SDK | Natural-language reasoning | TypeScript integration |
 
 ---

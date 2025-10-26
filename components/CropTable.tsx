@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/table";
 
 import { Crop, useCrop } from "@/contexts/crops-provider";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface CropTableProps {
   className?: string;
@@ -21,8 +22,9 @@ interface CropTableProps {
 }
 
 export function CropTable({ past_harvest, limit, className }: CropTableProps) {
-  const { crops } = useCrop();
+  const { crops, deleteCrop, addCrop } = useCrop();
   const [displayCrops, setDisplayCrops] = useState<Crop[]>([]);
+  const [lastDeletedCrop, setLastDeletedCrop] = useState<Crop | null>(null);
   const [sort, setSort] = useState<"name" | "expDate" | "purDate" | null>(null);
   const [ascending, setAscending] = useState<boolean>(false);
 
@@ -73,7 +75,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
     } else {
       setDisplayCrops(sortedCrops);
     }
-  }, [sort, ascending, past_harvest, limit]);
+  }, [sort, ascending, past_harvest, limit, crops]);
 
   const toggleSort = (sortTag: "name" | "expDate" | "purDate") => {
     if (sortTag == sort) {
@@ -81,6 +83,33 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
     } else {
       setSort(sortTag);
     }
+  };
+
+  const handleDelete = async (crop_id: string) => {
+    const cropToDelete: Crop | undefined = crops.find(
+      (c) => c.crop_id === crop_id
+    );
+    if (cropToDelete) {
+      setLastDeletedCrop(cropToDelete);
+      await deleteCrop(crop_id);
+      toast("Successfully Deleted Crop!", {
+        description: "We have removed this crop from your account",
+        // action: {
+        //   label: "Undo",
+        //   onClick: () => handleRecover(),
+        // },
+      });
+    }
+  };
+
+  const handleRecover = async () => {
+    if (!lastDeletedCrop) return;
+    await addCrop(lastDeletedCrop);
+    setLastDeletedCrop(null);
+    toast("Recovery Success"!, {
+      description:
+        "We have recovered your crop and added it back to your account!",
+    });
   };
 
   if (displayCrops.length === 0) {
@@ -92,7 +121,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
         </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead colSpan={4} className="text-center">
+            <TableHead colSpan={5} className="text-center">
               {past_harvest ? "Crops That Are Past Harvest" : "Recent Crops"}
             </TableHead>
           </TableRow>
@@ -100,9 +129,8 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
             <TableHead className=""></TableHead>
             <TableHead className="">Name</TableHead>
             <TableHead>Bought At</TableHead>
-            <TableHead className="">
-              Expire{past_harvest ? "d" : "s"} At
-            </TableHead>
+            <TableHead className="">Harvest At</TableHead>
+            <TableHead className=""></TableHead>
           </TableRow>
         </TableHeader>
       </Table>
@@ -117,7 +145,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead colSpan={4} className="text-center">
+          <TableHead colSpan={5} className="text-center">
             {past_harvest ? "Crops That are Past Harvest" : "Recent Crops"}
           </TableHead>
         </TableRow>
@@ -162,7 +190,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
               className="flex align-middle justify-items-center"
               onClick={() => toggleSort("expDate")}
             >
-              Expire{past_harvest ? "d" : "s"} At
+              Harvest At
               {sort === "expDate" ? (
                 ascending ? (
                   <ChevronUp className="ml-1 h-4 w-4" />
@@ -174,6 +202,7 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
               )}
             </button>
           </TableHead>
+          <TableHead className=""></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -192,6 +221,11 @@ export function CropTable({ past_harvest, limit, className }: CropTableProps) {
             </TableCell>
             <TableCell>
               {c.harvest_at ? new Date(c.harvest_at).toLocaleDateString() : "-"}
+            </TableCell>
+            <TableCell>
+              <button onClick={() => handleDelete(c.crop_id)}>
+                <X className="w-8 h-8" />
+              </button>
             </TableCell>
           </TableRow>
         ))}

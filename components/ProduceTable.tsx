@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/table";
 
 import { Produce, useProduce } from "@/contexts/produce-provider";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface ProduceTableProps {
   className?: string;
@@ -21,7 +22,10 @@ interface ProduceTableProps {
 }
 
 export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
-  const { produce } = useProduce();
+  const { produce, deleteProduce, addProduce } = useProduce();
+  const [lastDeletedProduce, setLastDeletedProduce] = useState<Produce | null>(
+    null
+  );
   const [displayProduce, setDisplayProduce] = useState<Produce[]>([]);
   const [sort, setSort] = useState<"name" | "expDate" | "purDate" | null>(null);
   const [ascending, setAscending] = useState<boolean>(false);
@@ -73,7 +77,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
     } else {
       setDisplayProduce(sortedProduce);
     }
-  }, [sort, ascending, expired, limit]);
+  }, [sort, ascending, expired, limit, produce]);
 
   const toggleSort = (sortTag: "name" | "expDate" | "purDate") => {
     if (sortTag == sort) {
@@ -81,6 +85,33 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
     } else {
       setSort(sortTag);
     }
+  };
+
+  const handleDelete = async (produce_id: string) => {
+    const produceToDelete: Produce | undefined = produce.find(
+      (c) => c.produce_id === produce_id
+    );
+    if (produceToDelete) {
+      setLastDeletedProduce(produceToDelete);
+      await deleteProduce(produce_id);
+      toast("Successfully Deleted Produce!", {
+        description: "We have removed this produce from your account",
+        // action: {
+        //   label: "Undo",
+        //   onClick: () => handleRecover(),
+        // },
+      });
+    }
+  };
+
+  const handleRecover = async () => {
+    if (!lastDeletedProduce) return;
+    await addProduce(lastDeletedProduce);
+    setLastDeletedProduce(null);
+    toast("Recovery Success"!, {
+      description:
+        "We have recovered your produce and added it back to your account!",
+    });
   };
 
   if (displayProduce.length === 0) {
@@ -91,7 +122,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
         </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead colSpan={4} className="text-center">
+            <TableHead colSpan={5} className="text-center">
               {expired ? "Expired" : "Recent"} Produce
             </TableHead>
           </TableRow>
@@ -100,6 +131,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
             <TableHead className="">Name</TableHead>
             <TableHead>Bought At</TableHead>
             <TableHead className="">Expire{expired ? "d" : "s"} At</TableHead>
+            <TableHead className=""></TableHead>
           </TableRow>
         </TableHeader>
       </Table>
@@ -113,7 +145,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead colSpan={4} className="text-center">
+          <TableHead colSpan={5} className="text-center">
             {expired ? "Expired" : "Recent"} Produce
           </TableHead>
         </TableRow>
@@ -170,6 +202,7 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
               )}
             </button>
           </TableHead>
+          <TableHead className=""></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -188,6 +221,11 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
             </TableCell>
             <TableCell>
               {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : "-"}
+            </TableCell>
+            <TableCell>
+              <button onClick={() => handleDelete(p.produce_id)}>
+                <X className="w-8 h-8" />
+              </button>
             </TableCell>
           </TableRow>
         ))}

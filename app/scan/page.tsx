@@ -5,12 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Camera, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useProfile } from "@/contexts/profile-provider";
+import { FoodInfoSheet } from "@/components/FoodInfoSheet";
+import CarrotLoader from "@/components/CarrotLoader";
+import { GeminiResponse } from "@/lib/types/classification";
+import { Produce, useProduce } from "@/contexts/produce-provider";
+import { Crop, useCrop } from "@/contexts/crops-provider";
+import { toast } from "sonner";
 
 export default function ScanPage() {
   const router = useRouter();
+  const { profile } = useProfile();
+  const { addProduce } = useProduce();
+  const { addCrop } = useCrop();
   const [error, setError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [foodImageUrl, setFoodImageUrl] = useState<string | null>(null);
+  const [foodInfo, setFoodInfo] = useState<GeminiResponse | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
 
   // Ref for the video element
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -33,7 +46,7 @@ export default function ScanPage() {
         if (videoElement) {
           // 2. Attach stream to video element
           videoElement.srcObject = currentStream;
-
+          setIsCameraActive(true);
           // 3. Attempt to play and use .catch() to handle potential interruptions
           //    This helps, but proper cleanup is the main solution.
           videoElement.play().catch((error) => {
@@ -78,6 +91,18 @@ export default function ScanPage() {
     };
   }, []);
 
+  const dataURLtoFile = async (
+    dataUrl: string,
+    filename: string
+  ): Promise<File> => {
+    // Fetch the data URL content
+    const res = await fetch(dataUrl);
+    // Get the Blob object
+    const blob = await res.blob();
+    // Create a File object from the Blob
+    return new File([blob], filename, { type: blob.type });
+  };
+
   // Function to start the camera stream (same logic as before)
   const startCamera = useCallback(async () => {
     setError(null);
@@ -120,34 +145,100 @@ export default function ScanPage() {
   }, []);
 
   // Handle capture and download (same logic as before)
-  const handleCapture = () => {
+  const handleCapture = async () => {
     if (!videoRef.current || !isCameraActive || isCapturing) return;
 
     setIsCapturing(true);
 
-    const video = videoRef.current;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
+    try {
+      if (!profile) throw new Error("User profile does not exist!");
 
-    if (ctx) {
-      // Mirror reversal logic
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-      const imageURL = canvas.toDataURL("image/png");
+      if (ctx) {
+        // Mirror reversal logic
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
 
-      const link = document.createElement("a");
-      link.href = imageURL;
-      link.download = `capture-${new Date().getTime()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        const imageURL = canvas.toDataURL("image/png");
+        setFoodImageUrl(imageURL);
+        const capture: File = await dataURLtoFile(imageURL, "capture.png");
+
+        const formData = new FormData();
+        formData.append("image", capture);
+        formData.append("type", profile.user_type);
+
+        // Send the request to Next.js Route Handler
+        const response = await fetch("/api/image/classify", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        setFoodInfo(result);
+
+        if (response.ok) {
+          console.log("Response:", result);
+        } else {
+          console.error("Response:", result);
+          setError(result.message);
+          throw new Error("Something went wrong!");
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("An unknown error has occurred:", err);
+      }
+    } finally {
+      setIsCapturing(false);
+      setSheetOpen(true);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!profile || !foodInfo) return;
+
+    if (profile.user_type === "consumer") {
+      const newProduce: Partial<Produce> = {
+        name: foodInfo.produce_name,
+        expires_at: new Date(foodInfo.expiration_date).toISOString(),
+      };
+
+      await addProduce(newProduce);
+    } else {
+      const newCrop: Partial<Crop> = {
+        name: foodInfo.crop_name,
+        harvest_at: new Date(foodInfo.harvest_date).toISOString(),
+      };
+
+      await addCrop(newCrop);
     }
 
-    setIsCapturing(false);
+    toast("Save Successful", {
+      description: "Your Food Item has been successfully saved!",
+    });
+
+    setSheetOpen(false);
+    setFoodImageUrl(null);
+    setFoodInfo(null);
   };
+
+  const handleDiscard = async () => {
+    setFoodImageUrl(null);
+    setFoodInfo(null);
+    setSheetOpen(false);
+  };
+
+  if (!profile) {
+    return null;
+  }
 
   return (
     // The main container now enforces a true full-screen, mobile-first experience
@@ -209,6 +300,20 @@ export default function ScanPage() {
           <span className="sr-only">Take Photo</span>
         </Button>
       </div>
+
+      <CarrotLoader isActive={isCapturing} />
+
+      {foodInfo && (
+        <FoodInfoSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          foodInfo={foodInfo}
+          type={profile?.user_type}
+          foodImage={foodImageUrl ?? "/globe.svg"}
+          onDiscard={handleDiscard}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

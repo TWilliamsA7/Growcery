@@ -7,18 +7,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useProfile } from "@/contexts/profile-provider";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface SelectRoleModalProps {
   title: string;
   description: string;
   openDefault: boolean;
-  triggerText: string;
+  open: boolean;
   onOpenChange?: (open: Boolean) => void;
 }
 
@@ -26,18 +25,24 @@ export function SelectRoleModal({
   title,
   description,
   openDefault = false,
-  triggerText,
+  open,
   onOpenChange,
 }: SelectRoleModalProps) {
   const { updateUserType, profile } = useProfile();
-  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleSelection = async (type: "consumer" | "farmer") => {
+    setLoading(true);
+    await updateUserType(type);
+    toast(`Updated role to ${type}`, {
+      description: "Can be changed at an time later on",
+    });
+    setLoading(false);
+  };
 
   return (
-    <Dialog defaultOpen={openDefault} onOpenChange={onOpenChange}>
+    <Dialog defaultOpen={openDefault} open={open} onOpenChange={onOpenChange}>
       <form>
-        <DialogTrigger asChild>
-          <Button variant="outline">{triggerText}</Button>
-        </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -85,7 +90,9 @@ export function SelectRoleModal({
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Done</Button>
+              <Button disabled={loading} variant="outline">
+                Done
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

@@ -8,13 +8,17 @@ import { useRouter } from "next/navigation";
 import { useProfile } from "@/contexts/profile-provider";
 import { FoodInfoSheet } from "@/components/FoodInfoSheet";
 import CarrotLoader from "@/components/CarrotLoader";
+import { GeminiResponse } from "@/lib/types/classification";
 
 export default function ScanPage() {
   const router = useRouter();
   const { profile } = useProfile();
   const [error, setError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [foodImageUrl, setFoodImageUrl] = useState<string | null>(null);
+  const [foodInfo, setFoodInfo] = useState<GeminiResponse | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
 
   // Ref for the video element
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -135,6 +139,8 @@ export default function ScanPage() {
     }
   }, []);
 
+  const openInfoDrawer = async () => {};
+
   // Handle capture and download (same logic as before)
   const handleCapture = async () => {
     if (!videoRef.current || !isCameraActive || isCapturing) return;
@@ -156,6 +162,7 @@ export default function ScanPage() {
         ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
 
         const imageURL = canvas.toDataURL("image/png");
+        setFoodImageUrl(imageURL);
         const capture: File = await dataURLtoFile(imageURL, "capture.png");
 
         const formData = new FormData();
@@ -170,10 +177,14 @@ export default function ScanPage() {
 
         const result = await response.json();
 
+        setFoodInfo(result);
+
         if (response.ok) {
           console.log("Response:", result);
+          openInfoDrawer();
         } else {
           console.error("Response:", result);
+          throw new Error("Something went wrong!");
         }
       }
     } catch (err: unknown) {
@@ -186,6 +197,10 @@ export default function ScanPage() {
       setIsCapturing(false);
     }
   };
+
+  if (!profile) {
+    return null;
+  }
 
   return (
     // The main container now enforces a true full-screen, mobile-first experience
@@ -248,30 +263,19 @@ export default function ScanPage() {
         </Button>
       </div>
 
-      {/* <CarrotLoader isActive={true} /> */}
+      <CarrotLoader isActive={isCapturing} />
 
-      {/* <FoodInfoSheet
-        open={true}
-        foodInfo={{
-          user_type: "consumer",
-          expiration_date: "10/29/2025",
-          harvest_date: "11/23/2026",
-          produce_name: "Baby Carrot",
-          crop_name: "Baby Carror Plant",
-          storage_method: "This should be stored in a cool area",
-          health: "Healthy",
-          attributes: "Small scratches, and blotches",
-          physical_qualities: "Very Firm",
-          treatment: "Rub some water",
-          location: "Florida, United States",
-          disease: "None",
-        }}
-        type="farmer"
-        onOpenChange={() => {}}
-        foodImage="/globe.svg"
-        onDiscard={() => {}}
-        onSave={() => {}}
-      /> */}
+      {foodInfo && (
+        <FoodInfoSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          foodInfo={foodInfo}
+          type={profile?.user_type}
+          foodImage={foodImageUrl ?? "/globe.svg"}
+          onDiscard={() => {}}
+          onSave={() => {}}
+        />
+      )}
     </div>
   );
 }

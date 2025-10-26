@@ -102,18 +102,18 @@ export function FoodInfoSheet({
           <p id="physAttr">{foodInfo.physical_qualities}</p>
         </div>
 
-        <SheetFooter>
-          <Button
-            onClick={onSave}
-            className="bg-green-400 text-white hover:bg-green-700/90 shadow-lg shadow-green-500/50 rounded-se-2xl"
-          >
-            Save Item
-          </Button>
+        <SheetFooter className="flex flex-row justify-center gap-2 p-4 pt-0">
           <Button
             onClick={onDiscard}
-            className="bg-red-400 text-white hover:bg-red-700/90 shadow-lg shadow-red-500/50 rounded-se-2xl"
+            className="bg-red-500 text-white hover:bg-red-700 w-auto shadow-md"
           >
             Discard Item
+          </Button>
+          <Button
+            onClick={onSave}
+            className="bg-green-600 text-white hover:bg-green-700 w-auto shadow-md"
+          >
+            Save Item
           </Button>
         </SheetFooter>
       </SheetContent>

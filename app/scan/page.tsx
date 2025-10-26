@@ -91,7 +91,7 @@ export default function ScanPage() {
 
         // decide whether to mirror by default (based on track settings/label)
         const mirror = decideMirrorFromTrack(currentStream);
-        setIsMirrored(mirror);
+        setIsMirrored(!mirror);
 
         // Wait for metadata/canplay so videoWidth/videoHeight are available
         await new Promise<void>((resolve, reject) => {

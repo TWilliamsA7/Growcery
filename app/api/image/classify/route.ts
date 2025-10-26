@@ -44,22 +44,25 @@ export async function POST(request: Request) {
 
     // 5. Success
     const externalData = await response.json();
+    const formData = new FormData();
 
-    const geminiReq = {
-      id: "000-000-00",
-      jsonrpc: "2",
-      method: "orchestrate",
-      params: {
-        image: file,
-        type: custType,
-        location: "Florida, United States",
-        ...externalData,
-      },
-    };
+    if (file) {
+      formData.append("file", file, file.name); // The binary file
+    }
+    formData.append("type", custType);
+    formData.append("location", "Florida, United States");
+
+    // 3. ✨ Append the externalData fields using a loop (the efficient way)
+    for (const key in externalData) {
+      if (Object.prototype.hasOwnProperty.call(externalData, key)) {
+        // Ensure the value is converted to a string if it's not already
+        formData.append(key, String(externalData[key]));
+      }
+    }
 
     const geminiRes = await fetch("/api/image/response", {
       method: "POST",
-      body: JSON.stringify(geminiReq),
+      body: formData,
     });
 
     if (!geminiRes.ok) {

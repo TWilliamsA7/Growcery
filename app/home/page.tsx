@@ -15,19 +15,32 @@ export default function HomePage() {
   const router = useRouter();
   const [displayLimit, setDisplayLimit] = useState<number | undefined>(5);
 
+  function getTimeBasedGreeting(): string {
+    const now = new Date();
+    const hour = now.getHours();
+    if (!profile) return "";
+
+    if (hour >= 5 && hour < 12) {
+      return `Good morning ${profile.first_name}!`;
+    } else if (hour >= 12 && hour < 18) {
+      return `Good afternoon ${profile.first_name}!`;
+    } else {
+      // 6 PM (18) through 4:59 AM (4)
+      return `Good evening ${profile.first_name}!`;
+    }
+  }
+
   return (
     <div>
-      <header>
-        <GrowceryLogo className="" size="xxxxl" alt="Growcery Logo" />
-        <SelectRoleModal
-          title="Change Role"
-          description="Flip between farmer and consumer"
-          openDefault={false}
-          triggerText="Change Role"
-        />
+      <header className="flex justify-center">
+        <GrowceryLogo className="" size="xxxl" alt="Growcery Logo" />
+        <h1 className="text-lg text-black">{getTimeBasedGreeting()}</h1>
       </header>
       <main>
-        <MobileButton onClick={() => router.push("/scan")}>
+        <MobileButton
+          className="h-20 text-4xl"
+          onClick={() => router.push("/scan")}
+        >
           Start Scan
         </MobileButton>
 
@@ -43,7 +56,7 @@ export default function HomePage() {
           </>
         )}
         <MobileButton
-          className="mb-3"
+          className="mb-3 text-2xl h-10"
           onClick={() => {
             if (displayLimit) {
               setDisplayLimit(undefined);
@@ -56,7 +69,13 @@ export default function HomePage() {
         </MobileButton>
       </main>
       <footer>
-        <LogOutButton />
+        <LogOutButton className="text-lg" />
+        {/* <SelectRoleModal
+          title="Change Role"
+          description="Flip between farmer and consumer"
+          openDefault={false}
+          triggerText="Change Role"
+        /> */}
       </footer>
     </div>
   );

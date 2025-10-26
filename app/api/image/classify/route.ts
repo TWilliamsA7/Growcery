@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       },
     };
 
-    const geminiRes = await fetch("http://localhost:3000/api/image/response", {
+    const geminiRes = await fetch("/api/image/response", {
       method: "POST",
       body: JSON.stringify(geminiReq),
     });

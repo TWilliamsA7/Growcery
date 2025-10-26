@@ -40,12 +40,12 @@ export function FoodInfoSheet({
 }: FoodInfoSheetProps) {
   // ensure controlled derived initial state when the sheet opens/changes foodInfo
   const [foodName, setFoodName] = useState<string>(
-    foodInfo?.produce_name || foodInfo?.crop_name || ""
+    foodInfo?.name || foodInfo?.name || ""
   );
 
   // Keep foodName in sync when foodInfo prop changes (e.g., new scan)
   useEffect(() => {
-    setFoodName(foodInfo?.produce_name || foodInfo?.crop_name || "");
+    setFoodName(foodInfo?.name || foodInfo?.name || "");
   }, [foodInfo]);
 
   return (
@@ -118,7 +118,7 @@ export function FoodInfoSheet({
             <div>
               <Label htmlFor="health">Health</Label>
               <p id="health" className="text-sm">
-                {foodInfo.health || "—"}
+                {foodInfo.condition || "—"}
               </p>
             </div>
 
@@ -126,53 +126,35 @@ export function FoodInfoSheet({
               <div>
                 <Label htmlFor="expDate">Expiration Date</Label>
                 <p id="expDate" className="text-sm">
-                  {foodInfo.expiration_date || "—"}
+                  {foodInfo.expirationDate || "—"}
                 </p>
               </div>
             ) : (
               <div>
                 <Label htmlFor="harDate">Harvest Date</Label>
                 <p id="harDate" className="text-sm">
-                  {foodInfo.harvest_date || "—"}
-                </p>
-              </div>
-            )}
-
-            {type === "farmer" ? (
-              <>
-                <div>
-                  <Label htmlFor="disease">Disease</Label>
-                  <p id="disease" className="text-sm">
-                    {foodInfo.disease || "—"}
-                  </p>
-                </div>
-                <div>
-                  <Label htmlFor="treatment">Treatment</Label>
-                  <p id="treatment" className="text-sm">
-                    {foodInfo.treatment || "—"}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div>
-                <Label htmlFor="storage">Recommended Storage Method</Label>
-                <p id="storage" className="text-sm">
-                  {foodInfo.storage_method || "—"}
+                  {foodInfo.expirationDate || "—"}
                 </p>
               </div>
             )}
 
             <div>
-              <Label htmlFor="attr">Attributes</Label>
+              <Label htmlFor="storage">Recommended Storage Method</Label>
+              <p id="storage" className="text-sm">
+                {foodInfo.storageInstructions || "—"}
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="attr">Features</Label>
               <p id="attr" className="text-sm">
-                {foodInfo.attributes || "—"}
+                {foodInfo.features || "—"}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="physAttr">Physical Qualities</Label>
+              <Label htmlFor="physAttr">Sensory Characteristics</Label>
               <p id="physAttr" className="text-sm">
-                {foodInfo.physical_qualities || "—"}
+                {foodInfo.sensoryCharacteristics || "—"}
               </p>
             </div>
 

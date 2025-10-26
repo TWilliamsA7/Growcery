@@ -297,15 +297,15 @@ export default function ScanPage() {
 
     if (profile.user_type === "consumer") {
       const newProduce: Partial<Produce> = {
-        name: foodInfo.produce_name,
-        expires_at: new Date(foodInfo.expiration_date).toISOString(),
+        name: foodInfo.name,
+        expires_at: new Date(foodInfo.expirationDate).toISOString(),
       };
 
       await addProduce(newProduce);
     } else {
       const newCrop: Partial<Crop> = {
-        name: foodInfo.crop_name,
-        harvest_at: new Date(foodInfo.harvest_date).toISOString(),
+        name: foodInfo.name,
+        harvest_at: new Date(foodInfo.expirationDate).toISOString(),
       };
 
       await addCrop(newCrop);

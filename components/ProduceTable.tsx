@@ -14,6 +14,7 @@ import { Produce, useProduce } from "@/contexts/produce-provider";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { knownIcons } from "./icons";
 
 interface ProduceTableProps {
   className?: string;
@@ -211,29 +212,41 @@ export function ProduceTable({ expired, limit, className }: ProduceTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {displayProduce.map((p) => (
-          <TableRow key={p.produce_id}>
-            <TableCell>
-              <img
-                className="h-4 w-4"
-                src={p.cover_image ?? "/food-placeholder.svg"}
-                alt={p.name}
-              />
-            </TableCell>
-            <TableCell className="font-medium">{p.name}</TableCell>
-            <TableCell>
-              {p.bought_at ? new Date(p.bought_at).toLocaleDateString() : "-"}
-            </TableCell>
-            <TableCell>
-              {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : "-"}
-            </TableCell>
-            <TableCell>
-              <button onClick={() => handleDelete(p.produce_id)}>
-                <X className="w-8 h-8" />
-              </button>
-            </TableCell>
-          </TableRow>
-        ))}
+        {displayProduce.map((p) => {
+          let src: string = "/food-placeholder.svg";
+
+          if (
+            knownIcons.includes(p.name.toLowerCase().trim().replace(" ", ""))
+          ) {
+            src = `/icons/${p.name.toLowerCase().trim().replace(" ", "")}.png`;
+          }
+
+          return (
+            <TableRow key={p.produce_id}>
+              <TableCell>
+                <img
+                  className="h-4 w-4"
+                  src={p.cover_image ?? src}
+                  alt={p.name}
+                />
+              </TableCell>
+              <TableCell className="font-medium">{p.name}</TableCell>
+              <TableCell>
+                {p.bought_at ? new Date(p.bought_at).toLocaleDateString() : "-"}
+              </TableCell>
+              <TableCell>
+                {p.expires_at
+                  ? new Date(p.expires_at).toLocaleDateString()
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                <button onClick={() => handleDelete(p.produce_id)}>
+                  <X className="w-8 h-8" />
+                </button>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
